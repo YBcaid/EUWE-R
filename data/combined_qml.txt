@@ -1,0 +1,3185 @@
+// ============================================================
+// Combined QML files from project: F:/QtProject/EUWE
+// Total QML files: 14
+// ============================================================
+
+// ============================================================
+// File: ui/main/CapsuleButton.qml
+// ============================================================
+import QtQuick
+import QtQuick.Layouts
+
+Rectangle {
+    id: root
+    property string text: ""
+    property string iconType: ""
+    property bool isPrimary: false
+    property bool isDanger: false
+
+    signal clicked()
+
+    width: parent.width; height: 34; radius: 17
+
+    color: {
+        if (mouseArea.containsMouse) {
+            if (isPrimary) return Theme.dark ? "#1FAF9E" : "#E8DCCC"
+            if (isDanger) return Theme.dark ? Qt.rgba(255,90,90,0.2) : "#FFE8E8"
+            return Theme.dark ? Qt.rgba(1,1,1,0.12) : "#F5F0EB"
+        }
+        if (isPrimary) return Theme.btnPrimaryBg
+        if (isDanger) return Theme.btnDangerBg
+        return Theme.btnNormalBg
+    }
+    border.color: isPrimary ? "transparent" : (isDanger ? Theme.btnDangerBorder : Theme.btnNormalBorder)
+    border.width: isPrimary ? 0 : 1
+
+    // 图标数据（与原一致，只需替换 currentColor 的替换逻辑）
+    readonly property string svgPlay: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolygon points='5 3 19 12 5 21 5 3'/%3E%3C/svg%3E"
+    readonly property string svgUpload: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M3 15v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4'/%3E%3Cpolyline points='17 8 12 3 7 8'/%3E%3Cline x1='12' y1='3' x2='12' y2='15'/%3E%3C/svg%3E"
+    readonly property string svgTrash: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='3 6 5 6 21 6'/%3E%3Cpath d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2'/%3E%3Cline x1='10' y1='11' x2='10' y2='17'/%3E%3Cline x1='14' y1='11' x2='14' y2='17'/%3E%3C/svg%3E"
+    readonly property string svgCopy: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='9' y='9' width='13' height='13' rx='2' ry='2'/%3E%3Cpath d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'/%3E%3C/svg%3E"
+    readonly property string svgHelp: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M9 9a3 3 0 0 1 6 0c0 2-3 2-3 4'/%3E%3Ccircle cx='12' cy='17' r='1'/%3E%3C/svg%3E"
+    readonly property string svgInfo: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' y1='10' x2='12' y2='16'/%3E%3Ccircle cx='12' cy='7' r='1'/%3E%3C/svg%3E"
+
+    function toHexColor(color) {
+        var str = color.toString()
+        if (str.startsWith("#")) return str
+        var match = str.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
+        if (match) {
+            var r = parseInt(match[1]).toString(16).padStart(2, '0')
+            var g = parseInt(match[2]).toString(16).padStart(2, '0')
+            var b = parseInt(match[3]).toString(16).padStart(2, '0')
+            return "#" + r + g + b
+        }
+        return "#000000"
+    }
+
+    readonly property color iconColor: {
+        if (isDanger) return Theme.btnDangerText
+        if (isPrimary) return Theme.dark ? "#0F172A" : "#4D3E2E"
+        return Theme.textMid
+    }
+
+    readonly property string iconSource: {
+        var base = iconType === "play" ? svgPlay :
+                  iconType === "upload" ? svgUpload :
+                  iconType === "trash" ? svgTrash :
+                  iconType === "copy" ? svgCopy :
+                  iconType === "help" ? svgHelp :
+                  iconType === "info" ? svgInfo : ""
+        if (base === "") return ""
+        var hexColor = toHexColor(iconColor)
+        var colorHex = hexColor.substring(1)
+        return base.replace(/currentColor/g, "%23" + colorHex)
+    }
+
+    RowLayout {
+        anchors.centerIn: parent; spacing: 6
+        Image {
+            visible: iconType !== ""; width: 16; height: 16
+            source: iconSource
+            sourceSize: Qt.size(16,16); smooth: true
+        }
+        Text {
+            text: root.text
+            font.pixelSize: 12
+            font.weight: isPrimary ? Font.DemiBold : Font.Normal
+            color: {
+                if (isDanger) return Theme.btnDangerText
+                if (isPrimary) return Theme.dark ? "#0F172A" : "#4D3E2E"
+                return Theme.textMid
+            }
+        }
+    }
+
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+        hoverEnabled: true
+        onClicked: root.clicked()
+    }
+}
+// ============================================================
+// End of file: ui/main/CapsuleButton.qml
+// ============================================================
+
+// ============================================================
+// File: ui/main/ExtractPage.qml
+// ============================================================
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+
+Rectangle {
+    id: root
+    color: "transparent"
+
+    property var rootWindow: null
+
+    signal textChanged(string fullText, int charCount, int wordCount, int lineCount)
+    signal extractRequested()
+    signal clearRequested()
+    signal copyRequested()
+    signal helpRequested()
+    signal aboutRequested()
+    signal importRequested()
+
+    RowLayout {
+        anchors.fill: parent
+        anchors.margins: 20
+        spacing: 20
+
+        ColumnLayout {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            spacing: 10
+
+            Column {
+                spacing: 2
+                Text {
+                    text: "英语生词提取工具"
+                    font.pixelSize: 20
+                    font.bold: true
+                    color: Theme.textDark
+                }
+                Text {
+                    text: "Made By Bcaid"
+                    font.pixelSize: 12
+                    color: Theme.textLight
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                border.color: Theme.borderInner
+                border.width: 1
+                radius: 12
+                color: Theme.surface
+
+                ScrollView {
+                    anchors.fill: parent
+                    anchors.margins: 10
+                    clip: true
+
+                    TextArea {
+                        id: mainInput
+                        placeholderText: "在此输入文本…"
+                        font.pixelSize: 15
+                        wrapMode: TextEdit.Wrap
+                        background: null
+                        color: Theme.textDark
+                        selectByMouse: true
+                        placeholderTextColor: Theme.textLight
+
+                        onTextChanged: {
+                            var text = mainInput.text
+                            var chars = text.length
+                            var words = text.trim().length === 0 ? 0 : text.trim().split(/\s+/).length
+                            var lines = text.length === 0 ? 0 : text.split("\n").length
+                            root.textChanged(text, chars, words, lines)
+                        }
+                    }
+                }
+            }
+        }
+
+        Rectangle {
+            width: 210
+            Layout.fillHeight: true
+            color: "transparent"
+            border.color: Theme.borderInner
+            border.width: 1
+            radius: 12
+
+            Rectangle {
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: 32
+                color: "transparent"
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "快捷操作"
+                    font.pixelSize: 12
+                    font.bold: true
+                    color: Theme.textMid
+                }
+                Rectangle {
+                    anchors.bottom: parent.bottom
+                    width: parent.width
+                    height: 1
+                    color: Theme.borderInner
+                }
+            }
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 12
+                anchors.topMargin: 40
+                spacing: 8
+
+                PanelGroup {
+                    title: "基础操作"
+                }
+
+                CapsuleButton {
+                    text: "提取单词"
+                    iconType: "play"
+                    isPrimary: true
+                    onClicked: root.extractRequested()
+                }
+
+                CapsuleButton {
+                    text: "文件/图片导入"
+                    iconType: "upload"
+                    onClicked: root.importRequested()
+                }
+
+                Item { height: 2 }
+
+                PanelGroup { title: "编辑工具" }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
+
+                    CapsuleButton {
+                        text: "清空"
+                        iconType: "trash"
+                        isDanger: true
+                        Layout.fillWidth: true
+                        onClicked: {
+                            mainInput.clear()
+                            root.clearRequested()
+                        }
+                    }
+
+                    CapsuleButton {
+                        text: "复制"
+                        iconType: "copy"
+                        Layout.fillWidth: true
+                        onClicked: {
+                            mainInput.selectAll()
+                            mainInput.copy()
+                            root.copyRequested()
+                        }
+                    }
+                }
+
+                Item { height: 2 }
+
+                PanelGroup { title: "其他" }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
+
+                    CapsuleButton {
+                        text: "帮助"
+                        iconType: "help"
+                        Layout.fillWidth: true
+                        onClicked: root.helpRequested()
+                    }
+
+                    CapsuleButton {
+                        text: "关于"
+                        iconType: "info"
+                        Layout.fillWidth: true
+                        onClicked: root.aboutRequested()
+                    }
+                }
+
+                Item { Layout.fillHeight: true }
+            }
+        }
+    }
+}
+// ============================================================
+// End of file: ui/main/ExtractPage.qml
+// ============================================================
+
+// ============================================================
+// File: ui/main/main.qml
+// ============================================================
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Window
+
+Window {
+    id: rootWindow
+    width: 853
+    height: 583
+    visible: true
+    title: "EUWE V1.3"
+    color: "transparent"
+    flags: Qt.FramelessWindowHint | Qt.Window | Qt.NoDropShadowWindowHint
+
+    property Theme theme: Theme
+
+    function toggleTheme() {
+        Theme.dark = !Theme.dark
+    }
+
+    property string statusTextValue: "就绪 - 可以开始提取文本"
+    property int currentView: 0   // 0:提取页, 1:结果页, 2:管理页
+
+    function showDemoDialog(title, text) {
+        var component = Qt.createComponent("MessageDialog.qml")
+        if (component.status === Component.Ready) {
+            var dialog = component.createObject(rootWindow)
+            dialog.dialogTitle = title
+            dialog.dialogText = text
+            dialog.standardButtons = "ok"
+            dialog.openCentered(rootWindow)
+        }
+    }
+
+    Rectangle {
+        anchors.fill: parent
+        color: "transparent"
+        radius: 16
+        border.color: Theme.border
+        border.width: 1
+    }
+
+    Rectangle {
+        anchors.fill: parent
+        anchors.margins: 1
+        radius: 15
+        color: Theme.bg
+        clip: true
+
+        Rectangle {
+            id: titleBar
+            height: 48
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            topLeftRadius: 15
+            topRightRadius: 15
+            color: Theme.titleBg
+
+            MouseArea {
+                anchors.fill: parent
+                property point clickPos
+                onPressed: clickPos = Qt.point(mouseX, mouseY)
+                onPositionChanged: if(pressed) { rootWindow.x += mouseX - clickPos.x; rootWindow.y += mouseY - clickPos.y }
+                onDoubleClicked: rootWindow.visibility === Window.Maximized ? rootWindow.showNormal() : rootWindow.showMaximized()
+            }
+
+            Row {
+                anchors.left: parent.left
+                anchors.leftMargin: 24
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 8
+                Image {
+                    width: 20; height: 20
+                    source: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='"+(Theme.dark?"%23F1F1F6":"%232C2C2C")+"' stroke-width='2'%3E%3Cpath d='M16 3h5v5M14 9l6-6M4 20h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-5'/%3E%3Cpath d='M12 12v6'/%3E%3Cpath d='M9 15h6'/%3E%3C/svg%3E"
+                    sourceSize: Qt.size(20,20); smooth: true
+                }
+                Text {
+                    text: "EUWE V1.3"
+                    font.pixelSize: 16
+                    font.bold: true
+                    color: Theme.textDark
+                }
+            }
+
+            RowLayout {
+                anchors.right: parent.right
+                anchors.rightMargin: 16
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 8
+                ThemeToggleBtn { onToggleTheme: rootWindow.toggleTheme() }
+                WindowControlBtn { text: "—"; onClicked: rootWindow.showMinimized() }
+                WindowControlBtn { text: "☐"; onClicked: rootWindow.visibility===Window.Maximized ? rootWindow.showNormal() : rootWindow.showMaximized() }
+                WindowControlBtn { text: "✕"; isClose: true; onClicked: rootWindow.close() }
+            }
+        }
+
+        Rectangle {
+            id: statusBar
+            height: 34
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            color: "transparent"
+
+            Rectangle {
+                width: parent.width
+                height: 1
+                anchors.top: parent.top
+                color: Theme.borderInner
+            }
+
+            RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: 20
+                anchors.rightMargin: 20
+                spacing: 16
+
+                Text {
+                    id: statusText
+                    text: rootWindow.statusTextValue
+                    font.pixelSize: 11
+                    color: Theme.textLight
+                    Layout.fillWidth: true
+                    elide: Text.ElideRight
+                }
+
+                Row {
+                    spacing: 16
+                    visible: currentView === 0
+                    Row { spacing:4; Text { text:"字符:"; font.pixelSize:11; color:Theme.textLight } Text { id:charValue; text:"0"; font.pixelSize:11; font.bold:true; color:Theme.textMid } }
+                    Row { spacing:4; Text { text:"单词:"; font.pixelSize:11; color:Theme.textLight } Text { id:wordValue; text:"0"; font.pixelSize:11; font.bold:true; color:Theme.textMid } }
+                    Row { spacing:4; Text { text:"行:"; font.pixelSize:11; color:Theme.textLight } Text { id:lineValue; text:"0"; font.pixelSize:11; font.bold:true; color:Theme.textMid } }
+                }
+
+                Row {
+                    spacing: 12
+                    visible: currentView === 1
+                    Row { spacing:4; Text { text:"未识别:"; font.pixelSize:11; color:Theme.textLight } Text { text: unknownModel.count; font.pixelSize:11; font.bold:true; color: Theme.btnDangerText } }
+                    Row { spacing:4; Text { text:"生词:"; font.pixelSize:11; color:Theme.textLight } Text { text: newWordModel.count; font.pixelSize:11; font.bold:true; color: Theme.accent } }
+                    Row { spacing:4; Text { text:"熟词:"; font.pixelSize:11; color:Theme.textLight } Text { text: knownWordModel.count; font.pixelSize:11; font.bold:true; color: "#28a745" } }
+                }
+
+                Row {
+                    spacing: 16
+                    visible: currentView === 2
+                }
+            }
+        }
+
+        Row {
+            anchors.top: titleBar.bottom
+            anchors.bottom: statusBar.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+
+            Rectangle {
+                id: sidebar
+                width: 48
+                height: parent.height
+                color: Theme.sidebarBg
+
+                Rectangle {
+                    width: 1
+                    height: parent.height
+                    anchors.right: parent.right
+                    color: Theme.borderInner
+                }
+
+                Rectangle {
+                    id: activeIndicator
+                    width: 34; height: 34; radius: 6
+                    color: Theme.dark ? Qt.rgba(45,212,191,0.2) : "#EBE0D5"
+                    x: (sidebar.width - width)/2
+                    y: {
+                        var target = [sideBar0, sideBar1, sideBar2][currentView]
+                        return target ? target.mapToItem(sidebar, 0, 0).y : 0
+                    }
+                    Behavior on y { NumberAnimation { duration: 200 } }
+                    Behavior on color { ColorAnimation { duration: 200 } }
+                }
+
+                ColumnLayout {
+                    anchors.top: parent.top
+                    width: parent.width
+                    spacing: 12
+
+                    SideBarItem {
+                        id: sideBar0
+                        iconType: "home"
+                        active: currentView===0
+                        onClicked: currentView = 0
+                    }
+                    SideBarItem {
+                        id: sideBar1
+                        iconType: "folder"
+                        active: currentView===1
+                        onClicked: currentView = 1
+                    }
+                    SideBarItem {
+                        id: sideBar2
+                        iconType: "file"
+                        active: currentView===2
+                        onClicked: currentView = 2
+                    }
+                }
+            }
+
+            Rectangle {
+                width: parent.width - sidebar.width
+                height: parent.height
+                color: "transparent"
+
+                StackLayout {
+                    anchors.fill: parent
+                    currentIndex: currentView
+
+                    ExtractPage {
+                        onTextChanged: { charValue.text = charCount; wordValue.text = wordCount; lineValue.text = lineCount; statusTextValue = "✨ 已更新" }
+                        onExtractRequested: { statusTextValue = "提取完成 (演示)" }
+                        onClearRequested: { charValue.text = "0"; wordValue.text = "0"; lineValue.text = "0"; statusTextValue = "✨ 文本已清空" }
+                        onCopyRequested: { statusTextValue = "已复制到剪贴板" }
+                        onHelpRequested: showDemoDialog("帮助", "联系 Bcaid\nQQ:75011847\nWX:YBcaid")
+                        onAboutRequested: showDemoDialog("关于", "EUWE 生词提取工具 V1.3\n演示版")
+                        onImportRequested: statusTextValue = "导入功能待集成 (可连接C++后端)"
+                    }
+
+                    // ★ 结果页：不再连接任何信号，数据操作完全由 ResultPage 内部完成
+                    ResultPage {
+                        unknownModel: unknownModel
+                        newWordModel: newWordModel
+                        knownWordModel: knownWordModel
+                        mainWindow: rootWindow
+                    }
+
+                    WordManagePage {
+                        knownWordsModel: knownWordModel
+                        rootWindow: rootWindow
+                        onAddWord: { (word, translation, phonetic) => {
+                            knownWordModel.append({ word: word, translation: translation, phonetic: phonetic })
+                            statusTextValue = `已添加单词: ${word}`
+                        }}
+                        onDeleteWord: { (word) => {
+                            for (var i = 0; i < knownWordModel.count; ++i) {
+                                if (knownWordModel.get(i).word === word) {
+                                    knownWordModel.remove(i)
+                                    statusTextValue = `️已删除单词: ${word}`
+                                    break
+                                }
+                            }
+                        }}
+                    }
+                }
+            }
+        }
+    }
+
+    // 全局数据模型
+    ListModel { id: unknownModel }
+    ListModel { id: newWordModel }
+    ListModel { id: knownWordModel }
+
+    Component.onCompleted: {
+        // ===== 未识别（15个） =====
+        unknownModel.append({ word: "algorithm", translation: "", phonetic: "" })
+        unknownModel.append({ word: "synthesize", translation: "", phonetic: "" })
+        unknownModel.append({ word: "ubiquitous", translation: "", phonetic: "" })
+        unknownModel.append({ word: "paradigm", translation: "", phonetic: "" })
+        unknownModel.append({ word: "ephemeral", translation: "", phonetic: "" })
+        unknownModel.append({ word: "serendipity", translation: "", phonetic: "" })
+        unknownModel.append({ word: "ambiguous", translation: "", phonetic: "" })
+        unknownModel.append({ word: "benevolent", translation: "", phonetic: "" })
+        unknownModel.append({ word: "cacophony", translation: "", phonetic: "" })
+        unknownModel.append({ word: "dichotomy", translation: "", phonetic: "" })
+        unknownModel.append({ word: "euphoria", translation: "", phonetic: "" })
+        unknownModel.append({ word: "facetious", translation: "", phonetic: "" })
+        unknownModel.append({ word: "garrulous", translation: "", phonetic: "" })
+        unknownModel.append({ word: "harbinger", translation: "", phonetic: "" })
+        unknownModel.append({ word: "iconoclast", translation: "", phonetic: "" })
+
+        // ===== 生词（15个） =====
+        newWordModel.append({ word: "apple", translation: "苹果", phonetic: "/ˈæp.əl/" })
+        newWordModel.append({ word: "car", translation: "汽车", phonetic: "/kɑːr/" })
+        newWordModel.append({ word: "house", translation: "房子", phonetic: "/haʊs/" })
+        newWordModel.append({ word: "computer", translation: "计算机", phonetic: "/kəmˈpjuː.t̬ɚ/" })
+        newWordModel.append({ word: "beautiful", translation: "美丽的", phonetic: "/ˈbjuː.t̬ə.fəl/" })
+        newWordModel.append({ word: "knowledge", translation: "知识", phonetic: "/ˈnɑː.lɪdʒ/" })
+        newWordModel.append({ word: "environment", translation: "环境", phonetic: "/ɪnˈvaɪ.rən.mənt/" })
+        newWordModel.append({ word: "communication", translation: "交流", phonetic: "/kəˌmjuː.nɪˈkeɪ.ʃən/" })
+        newWordModel.append({ word: "experience", translation: "经验", phonetic: "/ɪkˈspɪr.i.əns/" })
+        newWordModel.append({ word: "information", translation: "信息", phonetic: "/ˌɪn.fɚˈmeɪ.ʃən/" })
+        newWordModel.append({ word: "language", translation: "语言", phonetic: "/ˈlæŋ.ɡwɪdʒ/" })
+        newWordModel.append({ word: "opportunity", translation: "机会", phonetic: "/ˌɑː.pɚˈtuː.nə.t̬i/" })
+        newWordModel.append({ word: "technology", translation: "技术", phonetic: "/tekˈnɑː.lə.dʒi/" })
+        newWordModel.append({ word: "university", translation: "大学", phonetic: "/ˌjuː.nɪˈvɝː.sə.t̬i/" })
+        newWordModel.append({ word: "vocabulary", translation: "词汇", phonetic: "/voʊˈkæb.jə.ler.i/" })
+
+        // ===== 熟词（15个） =====
+        knownWordModel.append({ word: "hello", translation: "你好", phonetic: "/həˈloʊ/" })
+        knownWordModel.append({ word: "world", translation: "世界", phonetic: "/wɝːld/" })
+        knownWordModel.append({ word: "good", translation: "好的", phonetic: "/ɡʊd/" })
+        knownWordModel.append({ word: "morning", translation: "早晨", phonetic: "/ˈmɔːr.nɪŋ/" })
+        knownWordModel.append({ word: "thank", translation: "感谢", phonetic: "/θæŋk/" })
+        knownWordModel.append({ word: "friend", translation: "朋友", phonetic: "/frend/" })
+        knownWordModel.append({ word: "family", translation: "家庭", phonetic: "/ˈfæm.əl.i/" })
+        knownWordModel.append({ word: "love", translation: "爱", phonetic: "/lʌv/" })
+        knownWordModel.append({ word: "happy", translation: "快乐的", phonetic: "/ˈhæp.i/" })
+        knownWordModel.append({ word: "sad", translation: "悲伤的", phonetic: "/sæd/" })
+        knownWordModel.append({ word: "big", translation: "大的", phonetic: "/bɪɡ/" })
+        knownWordModel.append({ word: "small", translation: "小的", phonetic: "/smɑːl/" })
+        knownWordModel.append({ word: "hot", translation: "热的", phonetic: "/hɑːt/" })
+        knownWordModel.append({ word: "cold", translation: "冷的", phonetic: "/koʊld/" })
+        knownWordModel.append({ word: "beautiful", translation: "美丽的", phonetic: "/ˈbjuː.t̬ə.fəl/" })
+    }
+}
+// ============================================================
+// End of file: ui/main/main.qml
+// ============================================================
+
+// ============================================================
+// File: ui/main/MessageDialog.qml
+// ============================================================
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+
+Popup {
+    id: control
+    modal: true
+    focus: true
+    padding: 0
+
+    property var mainWindow: null
+    property string dialogTitle: ""
+    property string dialogText: ""
+    property string standardButtons: "ok"
+    property string type: "info"
+    property var onAccepted: function() {}
+    property var onRejected: function() {}
+    property real targetY: 0
+
+    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+    property color accentColor: {
+        switch (type) {
+        case "success": return Theme.btnPrimaryBg
+        case "warning": return "#E6A23C"
+        case "error":   return "#D96C6C"
+        default:        return Theme.btnPrimaryBg
+        }
+    }
+
+    Overlay.modal: Rectangle {
+        radius: 16
+        color: Qt.rgba(0, 0, 0, 0.28)
+    }
+
+    background: Rectangle {
+        radius: 16
+        color: Theme.surface
+        border.width: 0.5
+        border.color: control.accentColor
+    }
+
+    implicitWidth: Math.min(400, textItem.implicitWidth + 60)
+    implicitHeight: layout.implicitHeight + 36
+
+    contentItem: ColumnLayout {
+        id: layout
+        spacing: 14
+        anchors.fill: parent
+        anchors.margins: 20
+
+        ColumnLayout {
+            Layout.fillWidth: true
+            spacing: 8
+
+            Text {
+                visible: dialogTitle !== ""
+                text: dialogTitle
+                font.pixelSize: 17
+                font.bold: true
+                color: Theme.textDark
+            }
+
+            Rectangle {
+                visible: dialogTitle !== ""
+                Layout.fillWidth: true
+                height: 1
+                color: Theme.borderInner
+            }
+        }
+
+        Text {
+            id: textItem
+            text: dialogText
+            wrapMode: Text.WordWrap
+            font.pixelSize: 14
+            color: Theme.textMid
+            lineHeight: 1.4
+            Layout.fillWidth: true
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.topMargin: 0
+            Layout.bottomMargin: 35
+            Layout.alignment: Qt.AlignRight
+            spacing: 10
+
+            Repeater {
+                model: {
+                    switch (standardButtons) {
+                    case "ok": return ["确定"]
+                    case "okcancel": return ["取消", "确定"]
+                    case "yesno": return ["否", "是"]
+                    default: return ["确定"]
+                    }
+                }
+
+                delegate: Rectangle {
+                    radius: 18
+                    implicitWidth: 78
+                    implicitHeight: 34
+                    property bool primary: (modelData === "确定" || modelData === "是")
+
+                    color: primary ? Theme.btnPrimaryBg : Theme.btnNormalBg
+                    border.width: primary ? 0 : 1
+                    border.color: primary ? "transparent" : Theme.btnNormalBorder
+
+                    Behavior on color { ColorAnimation { duration: 120 } }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: modelData
+                        font.pixelSize: 13
+                        color: Theme.textDark
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+
+                        onEntered: {
+                            if (primary)
+                                parent.color = Theme.btnPrimaryBorder
+                            else
+                                parent.color = Theme.btnNormalBorder
+                        }
+
+                        onExited: {
+                            parent.color = primary ? Theme.btnPrimaryBg : Theme.btnNormalBg
+                        }
+
+                        onClicked: {
+                            if (primary) {
+                                control.onAccepted()
+                                control.close()
+                            } else {
+                                control.onRejected()
+                                control.close()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    enter: Transition {
+        ParallelAnimation {
+            NumberAnimation { property: "opacity"; from: 0; to: 1; duration: 160 }
+            NumberAnimation { property: "scale"; from: 0.92; to: 1; duration: 220; easing.type: Easing.OutBack; easing.overshoot: 1.4 }
+            NumberAnimation { property: "y"; from: control.targetY + 20; to: control.targetY; duration: 240; easing.type: Easing.OutBack; easing.overshoot: 1.2 }
+        }
+    }
+
+    exit: Transition {
+        ParallelAnimation {
+            NumberAnimation { property: "opacity"; to: 0; duration: 180 }
+            NumberAnimation { property: "scale"; to: 0.88; duration: 180; easing.type: Easing.InOutQuad }
+            NumberAnimation { property: "y"; to: control.targetY + 25; duration: 180; easing.type: Easing.InOutQuad }
+        }
+    }
+
+    Keys.onEscapePressed: {
+        control.onRejected()
+        control.close()
+    }
+
+    function openCentered(win) {
+        if (!win) return
+        mainWindow = win
+        targetY = (win.height - height) * 0.3
+        x = (win.width - width) / 2
+        y = targetY + 20
+        open()
+    }
+}
+// ============================================================
+// End of file: ui/main/MessageDialog.qml
+// ============================================================
+
+// ============================================================
+// File: ui/main/PanelGroup.qml
+// ============================================================
+import QtQuick
+import QtQuick.Layouts
+
+Item {
+    property string title: ""
+    width: parent.width; height: 18
+
+    RowLayout {
+        anchors.fill: parent; spacing: 6
+        Text {
+            text: title; font.pixelSize: 10; font.bold: true
+            color: Theme.textLight
+        }
+        Rectangle {
+            Layout.fillWidth: true; height: 1
+            color: Theme.borderInner
+        }
+    }
+}
+// ============================================================
+// End of file: ui/main/PanelGroup.qml
+// ============================================================
+
+// ============================================================
+// File: ui/main/ResultPage.qml
+// ============================================================
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+
+Rectangle {
+    id: root
+    color: "transparent"
+
+    property ListModel unknownModel
+    property ListModel newWordModel
+    property ListModel knownWordModel
+
+    property var unknownSelected: []
+    property var newWordSelected: []
+    property var knownWordSelected: []
+    property string activeList: ""
+    property var activeSelected: []
+
+    function clearAllSelections() {
+        unknownListComp.clearSelection()
+        newWordListComp.clearSelection()
+        knownWordListComp.clearSelection()
+        activeList = ""; activeSelected = []
+    }
+
+    function clearOtherList(listName) {
+        if (listName !== "unknown") unknownListComp.clearSelection()
+        if (listName !== "newWord") newWordListComp.clearSelection()
+        if (listName !== "knownWord") knownWordListComp.clearSelection()
+    }
+
+    function colorToHex(color) {
+        var str = color.toString()
+        if (str.startsWith("#")) return str
+        var match = str.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
+        if (match) {
+            var r = parseInt(match[1]).toString(16).padStart(2, '0')
+            var g = parseInt(match[2]).toString(16).padStart(2, '0')
+            var b = parseInt(match[3]).toString(16).padStart(2, '0')
+            return "#" + r + g + b
+        }
+        return "#000000"
+    }
+
+    readonly property string svgUnknown: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M10 9a2 2 0 0 1 4 0c0 2-2 3-2 5'/%3E%3Ccircle cx='12' cy='17' r='1' fill='currentColor' stroke='none'/%3E%3C/svg%3E"
+    readonly property string svgNewWord: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M4 6h16v12H4z'/%3E%3Cpath d='M4 6v12'/%3E%3Cpath d='M20 6v12'/%3E%3Cpath d='M12 6v12'/%3E%3C/svg%3E"
+    readonly property string svgKnown: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='8 12 11 15 16 9'/%3E%3C/svg%3E"
+
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 20
+        spacing: 16
+
+        Text {
+            text: "📊 单词识别结果"
+            font.pixelSize: 18
+            font.bold: true
+            color: Theme.textDark
+            Layout.alignment: Qt.AlignHCenter
+        }
+
+        SplitView {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            orientation: Qt.Horizontal
+
+            handle: Rectangle {
+                implicitWidth: 2
+                color: handleMouse.containsMouse ? Theme.accent : "transparent"
+                Behavior on color { ColorAnimation { duration: 200 } }
+                MouseArea { id: handleMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.SplitHCursor }
+            }
+
+            // 未识别 → 使用 SelectableWordList
+            Rectangle {
+                SplitView.preferredWidth: 140; SplitView.minimumWidth: 100
+                border.color: Qt.rgba(Theme.borderInner.r, Theme.borderInner.g, Theme.borderInner.b, 0.5)
+                border.width: 1; radius: 14; color: Theme.surface
+                Rectangle { anchors.fill: parent; radius: 14; color: Theme.dark ? "transparent" : Qt.rgba(1,1,1,0.4) }
+
+                SelectableWordList {
+                    id: unknownListComp
+                    anchors.fill: parent
+                    anchors.margins: 12
+                    title: "未识别"
+                    iconColor: colorToHex(Theme.btnDangerText)
+                    iconSvg: svgUnknown
+                    wordModel: unknownModel
+                    activeListType: "unknown"
+                    showTranslation: false
+                    showPhonetic: false
+
+                    onSelectionChanged: function(indices) {
+                        unknownSelected = indices.slice()
+                        root.activeList = "unknown"
+                        root.activeSelected = unknownSelected
+                    }
+                    onClearOtherLists: function(activeType) { root.clearOtherList(activeType) }
+                }
+            }
+
+            // 生词列表
+            Rectangle {
+                SplitView.preferredWidth: 400; SplitView.minimumWidth: 250
+                border.color: Qt.rgba(Theme.borderInner.r, Theme.borderInner.g, Theme.borderInner.b, 0.5)
+                border.width: 1; radius: 14; color: Theme.surface
+                Rectangle { anchors.fill: parent; radius: 14; color: Theme.dark ? "transparent" : Qt.rgba(1,1,1,0.4) }
+                SelectableWordList {
+                    id: newWordListComp
+                    anchors.fill: parent; anchors.margins: 12
+                    title: "生词（已获取释义）"
+                    iconColor: Theme.accent
+                    iconSvg: svgNewWord
+                    wordModel: newWordModel
+                    activeListType: "newWord"
+                    showTranslation: true; showPhonetic: true
+                    onSelectionChanged: function(indices) {
+                        newWordSelected = indices.slice()
+                        root.activeList = "newWord"
+                        root.activeSelected = newWordSelected
+                    }
+                    onClearOtherLists: function(activeType) { root.clearOtherList(activeType) }
+                }
+            }
+
+            // 熟词列表
+            Rectangle {
+                SplitView.preferredWidth: 140; SplitView.minimumWidth: 100
+                border.color: Qt.rgba(Theme.borderInner.r, Theme.borderInner.g, Theme.borderInner.b, 0.5)
+                border.width: 1; radius: 14; color: Theme.surface
+                Rectangle { anchors.fill: parent; radius: 14; color: Theme.dark ? "transparent" : Qt.rgba(1,1,1,0.4) }
+                SelectableWordList {
+                    id: knownWordListComp
+                    anchors.fill: parent; anchors.margins: 12
+                    title: "熟词"
+                    iconColor: "#28a745"
+                    iconSvg: svgKnown
+                    wordModel: knownWordModel
+                    activeListType: "knownWord"
+                    showTranslation: false; showPhonetic: false
+                    onSelectionChanged: function(indices) {
+                        knownWordSelected = indices.slice()
+                        root.activeList = "knownWord"
+                        root.activeSelected = knownWordSelected
+                    }
+                    onClearOtherLists: function(activeType) { root.clearOtherList(activeType) }
+                }
+            }
+        }
+
+        // 底部按钮栏
+        RowLayout {
+            Layout.fillWidth: true; spacing: 12
+            Item {
+                id: exportBtnWrapper; Layout.preferredWidth: 100; Layout.preferredHeight: 34
+                CapsuleButton { anchors.fill: parent; text: "导出 ▴"; iconType: "upload"; isPrimary: false
+                    onClicked: {
+                        if (exportPopup.visible) { exportPopup.close() }
+                        else {
+                            var btnPos = exportBtnWrapper.mapToItem(root, 0, 0)
+                            var popupWidth = 180; var popupHeight = 132
+                            var popupY = btnPos.y - popupHeight - 4
+                            exportPopup.isUpward = true
+                            if (popupY < 0) { popupY = btnPos.y + exportBtnWrapper.height + 4; exportPopup.isUpward = false }
+                            var popupX = btnPos.x
+                            if (popupX + popupWidth > root.width) popupX = root.width - popupWidth
+                            if (popupX < 0) popupX = 0
+                            exportPopup.x = popupX; exportPopup.y = popupY; exportPopup.open()
+                        }
+                    }
+                }
+            }
+
+            Item {
+                Layout.preferredWidth: 120; Layout.preferredHeight: 34
+                CapsuleButton { anchors.fill: parent
+                    text: {
+                        if (activeList === "newWord" && newWordSelected.length > 0) return "录入熟词库(" + newWordSelected.length + ")"
+                        if (activeList === "knownWord" && knownWordSelected.length > 0) return "移出熟词库(" + knownWordSelected.length + ")"
+                        return "熟词库操作"
+                    }
+                    iconType: ""; isPrimary: false
+                    onClicked: {
+                        if (activeList === "newWord" && newWordSelected.length > 0) {
+                            var indices = newWordSelected.slice().sort((a,b) => b - a)
+                            for (var i = 0; i < indices.length; i++) {
+                                var idx = indices[i]
+                                var item = newWordModel.get(idx)
+                                knownWordModel.append({ word: item.word, translation: item.translation, phonetic: item.phonetic })
+                                newWordModel.remove(idx)
+                            }
+                            clearAllSelections()
+                            if (root.mainWindow) root.mainWindow.statusTextValue = `✅ 已录入 ${indices.length} 个单词到熟词库`
+                        } else if (activeList === "knownWord" && knownWordSelected.length > 0) {
+                            var indices = knownWordSelected.slice().sort((a,b) => b - a)
+                            for (var j = 0; j < indices.length; j++) {
+                                var idx = indices[j]
+                                var item = knownWordModel.get(idx)
+                                newWordModel.append({ word: item.word, translation: item.translation, phonetic: item.phonetic })
+                                knownWordModel.remove(idx)
+                            }
+                            clearAllSelections()
+                            if (root.mainWindow) root.mainWindow.statusTextValue = `↩️ 已移出 ${indices.length} 个单词到生词`
+                        }
+                    }
+                }
+            }
+
+            Item { Layout.fillWidth: true }
+            Item { Layout.preferredWidth: 120; Layout.preferredHeight: 34
+                CapsuleButton { anchors.fill: parent; text: "数据库管理"; isPrimary: false
+                    onClicked: { if (root.mainWindow) root.mainWindow.currentView = 2 } }
+            }
+            Item { Layout.preferredWidth: 100; Layout.preferredHeight: 34
+                CapsuleButton { anchors.fill: parent; text: "继续识别"; isPrimary: true
+                    onClicked: { if (root.mainWindow) root.mainWindow.currentView = 0 } }
+            }
+        }
+    }
+
+    // 导出菜单（未改动）
+    Popup {
+        id: exportPopup; padding: 0; closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape; focus: true
+        property bool isUpward: false
+        background: Item {
+            implicitWidth: 180; implicitHeight: colLayout.implicitHeight + 12
+            Rectangle { x: 6; y: 8; width: parent.width; height: parent.height; radius: 14; color: Qt.rgba(0,0,0,0.03) }
+            Rectangle { x: 3; y: 4; width: parent.width; height: parent.height; radius: 14; color: Qt.rgba(0,0,0,0.06) }
+            Rectangle { x: 1; y: 2; width: parent.width; height: parent.height; radius: 14; color: Qt.rgba(0,0,0,0.10) }
+            Rectangle { anchors.fill: parent; radius: 14
+                color: Theme.dark ? Qt.lighter(Theme.surface, 1.08) : Qt.darker(Theme.surface, 1.01)
+                border.color: Theme.dark ? Theme.accent : Qt.rgba(Theme.borderInner.r, Theme.borderInner.g, Theme.borderInner.b, 0.5)
+                border.width: Theme.dark ? 1.5 : 1.2; clip: true }
+        }
+        contentItem: Item {
+            anchors.fill: parent; anchors.margins: 1
+            Column { id: colLayout; anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top; anchors.margins: 6; spacing: 0
+                Repeater {
+                    model: [
+                        { text: "CSV 导出", icon: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Cline x1='8' y1='10' x2='16' y2='10'/%3E%3Cline x1='8' y1='14' x2='16' y2='14'/%3E%3Cline x1='8' y1='6' x2='16' y2='6'/%3E%3C/svg%3E" },
+                        { text: "PDF 导出", icon: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3Ctext x='8' y='17' font-size='5' font-weight='bold' fill='currentColor' stroke='none'%3EPDF%3C/text%3E%3C/svg%3E" },
+                        { text: "DOC 导出", icon: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3Ctext x='7' y='17' font-size='4.5' font-weight='bold' fill='currentColor' stroke='none'%3EDOC%3C/text%3E%3C/svg%3E" }
+                    ]
+                    delegate: Rectangle {
+                        width: colLayout.width; height: 40; radius: 8
+                        color: hoverArea.containsMouse ? Theme.ghostBtnHoverBg : "transparent"
+                        Image { id: iconImg; width: 16; height: 16; anchors.left: parent.left; anchors.leftMargin: 12; anchors.verticalCenter: parent.verticalCenter
+                            source: modelData.icon.replace("currentColor", Theme.dark ? "%23FFFFFF" : "%234B5563"); sourceSize: Qt.size(16,16); smooth: true }
+                        Text { anchors.left: iconImg.right; anchors.leftMargin: 8; anchors.verticalCenter: parent.verticalCenter
+                            text: modelData.text; font.pixelSize: 13; font.weight: Font.Medium; color: Theme.textDark }
+                        Rectangle { anchors.bottom: parent.bottom; width: parent.width-24; height: 1
+                            color: Theme.dark ? Qt.lighter(Theme.borderInner, 1.3) : Theme.borderInner; visible: index !== 2; anchors.horizontalCenter: parent.horizontalCenter }
+                        MouseArea { id: hoverArea; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                            onClicked: { console.log(modelData.text); exportPopup.close() } }
+                    }
+                }
+            }
+        }
+        enter: Transition { ParallelAnimation {
+            NumberAnimation { property: "opacity"; from: 0; to: 1; duration: 200 }
+            NumberAnimation { property: "y"; from: exportPopup.isUpward ? exportPopup.y + 20 : exportPopup.y - 6; to: exportPopup.y; duration: 260; easing.type: Easing.OutBack } } }
+        exit: Transition { ParallelAnimation {
+            NumberAnimation { property: "opacity"; to: 0; duration: 140 }
+            NumberAnimation { property: "y"; to: exportPopup.isUpward ? exportPopup.y + 12 : exportPopup.y + 10; duration: 180; easing.type: Easing.InCubic } } }
+    }
+
+    property var mainWindow: null
+}
+// ============================================================
+// End of file: ui/main/ResultPage.qml
+// ============================================================
+
+// ============================================================
+// File: ui/main/SelectableWordList.qml
+// ============================================================
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+
+Item {
+    id: root
+
+    property string title: "列表"
+    property string iconColor: "#000000"
+    property string iconSvg: ""
+    property ListModel wordModel
+    property var selectedIndices: []
+    property int anchorIndex: -1
+    property string activeListType: ""
+    property bool showTranslation: false
+    property bool showPhonetic: false
+
+    signal selectionChanged(var indices)
+    signal clearOtherLists(string activeType)
+
+    // 全选功能
+    function selectAll() {
+        if (!wordModel) return
+        var arr = []
+        for (var i = 0; i < wordModel.count; i++) {
+            arr.push(i)
+        }
+        applySelection(arr, wordModel.count > 0 ? wordModel.count - 1 : -1)
+    }
+
+    // 响应 Ctrl+A 全选
+    Keys.onPressed: function(event) {
+        if (event.key === Qt.Key_A && event.modifiers & Qt.ControlModifier) {
+            selectAll()
+            event.accepted = true
+        }
+    }
+
+    QtObject {
+        id: internal
+        property bool isDragging: false
+        property int dragStartIdx: -1
+        property bool dragAddMode: true
+        property var dragOriginal: []
+        property int dragLastIdx: -1
+        property point pressStartPos: Qt.point(0,0)
+        property int pressedModifiers: 0
+        property bool pressedSelected: false
+        property int pressedIdx: -1
+    }
+
+    function clearSelection() { selectedIndices = []; anchorIndex = -1 }
+    function isSelected(index) { return selectedIndices.indexOf(index) !== -1 }
+    function applySelection(newIndices, newAnchor) {
+        selectedIndices = newIndices.slice()
+        anchorIndex = newAnchor
+        selectionChanged(selectedIndices)
+    }
+    function clearOtherList(listType) { clearOtherLists(listType) }
+    function singleSelect(index) { applySelection([index], index) }
+    function toggleSelect(index) {
+        var arr = selectedIndices.slice()
+        var pos = arr.indexOf(index)
+        if (pos !== -1) arr.splice(pos, 1)
+        else arr.push(index)
+        arr.sort((a,b)=>a-b)
+        applySelection(arr, index)
+    }
+    function rangeSelect(index) {
+        var anchor = anchorIndex !== -1 ? anchorIndex : index
+        var start = Math.min(anchor, index), end = Math.max(anchor, index)
+        var arr = []
+        for (var i = start; i <= end; i++) arr.push(i)
+        applySelection(arr, anchor)
+    }
+
+    ColumnLayout {
+        anchors.fill: parent; spacing: 8
+
+        Row {
+            spacing: 6
+            Image {
+                width: 16; height: 16; anchors.verticalCenter: parent.verticalCenter
+                source: iconSvg ? iconSvg.replace("currentColor", "%23" + iconColor.substring(1)) : ""
+                sourceSize: Qt.size(16,16); smooth: true
+            }
+            Text { text: title; font.pixelSize: 14; font.bold: true; color: iconColor }
+        }
+
+        Rectangle {
+            Layout.fillWidth: true; Layout.fillHeight: true; color: "transparent"
+
+            ListView {
+                id: listView; anchors.fill: parent; model: wordModel; clip: true
+                interactive: !internal.isDragging
+
+                // 自动滚动定时器（速度更快）
+                Timer {
+                    id: autoScrollTimer
+                    interval: 16
+                    repeat: true
+                    property int direction: 0
+                    property real step: 0
+                    onTriggered: {
+                        if (direction !== 0 && step > 0 && listView.contentHeight > listView.height) {
+                            var newY = listView.contentY + direction * step
+                            newY = Math.max(0, Math.min(newY, listView.contentHeight - listView.height))
+                            listView.contentY = newY
+                        } else {
+                            stop()
+                        }
+                    }
+                }
+
+                header: RowLayout {
+                    width: listView.width
+                    height: 30
+                    spacing: 0
+                    anchors.leftMargin: 14
+
+                    Rectangle {
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 0.3
+                        radius: 6
+                        color: Theme.dark ? Qt.rgba(1,1,1,0.04) : Qt.rgba(0,0,0,0.03)
+                        visible: true
+                        Text {
+                            anchors.left: parent.left
+                            anchors.leftMargin: 4
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: "单词"
+                            font.pixelSize: 12
+                            font.bold: true
+                            color: Theme.textMid
+                            horizontalAlignment: Text.AlignLeft
+                        }
+                    }
+
+                    Rectangle {
+                        Layout.fillHeight: true
+                        Layout.fillWidth: showTranslation
+                        Layout.preferredWidth: showTranslation ? 0.4 : 0
+                        radius: 6
+                        color: Theme.dark ? Qt.rgba(1,1,1,0.04) : Qt.rgba(0,0,0,0.03)
+                        visible: showTranslation
+                        Text {
+                            anchors.left: parent.left
+                            anchors.leftMargin: 4
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: "释义"
+                            font.pixelSize: 12
+                            font.bold: true
+                            color: Theme.textMid
+                            horizontalAlignment: Text.AlignLeft
+                        }
+                    }
+
+                    Rectangle {
+                        Layout.fillHeight: true
+                        Layout.fillWidth: showPhonetic
+                        Layout.preferredWidth: showPhonetic ? 0.3 : 0
+                        radius: 6
+                        color: Theme.dark ? Qt.rgba(1,1,1,0.04) : Qt.rgba(0,0,0,0.03)
+                        visible: showPhonetic
+                        Text {
+                            anchors.left: parent.left
+                            anchors.leftMargin: 4
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: "音标"
+                            font.pixelSize: 12
+                            font.bold: true
+                            color: Theme.textMid
+                            horizontalAlignment: Text.AlignLeft
+                        }
+                    }
+                }
+
+                delegate: Rectangle {
+                    width: listView.width
+                    height: showTranslation ? 44 : 40
+                    radius: 6
+                    color: "transparent"
+                    property bool selected: isSelected(index)
+
+                    Rectangle {
+                        anchors.fill: parent; radius: 6; color: Theme.accent
+                        opacity: selected ? (Theme.dark ? 0.12 : 0.18) : 0.0
+                        Behavior on opacity { NumberAnimation { duration:250; easing.type:Easing.OutCubic } }
+                    }
+                    Rectangle {
+                        anchors.left: parent.left; anchors.leftMargin: 4
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 3; height: parent.height-16; radius: 1.5; color: Theme.accent
+                        opacity: selected ? 0.9 : 0.0
+                        Behavior on opacity { NumberAnimation { duration:250; easing.type:Easing.OutCubic } }
+                    }
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.leftMargin: 14
+                        spacing: 4
+
+                        Text {
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: 0.3
+                            text: (model && model.word !== undefined) ? model.word : ""
+                            color: Theme.textDark
+                            font.pixelSize: 13
+                            font.weight: selected ? Font.DemiBold : Font.Medium
+                            elide: Text.ElideRight
+                            horizontalAlignment: Text.AlignLeft
+                        }
+
+                        Text {
+                            visible: showTranslation
+                            Layout.fillWidth: showTranslation
+                            Layout.preferredWidth: showTranslation ? 0.4 : 0
+                            text: (model && model.translation !== undefined) ? model.translation : ""
+                            color: Theme.textMid
+                            font.pixelSize: 12
+                            elide: Text.ElideRight
+                            horizontalAlignment: Text.AlignLeft
+                        }
+
+                        Text {
+                            visible: showPhonetic
+                            Layout.fillWidth: showPhonetic
+                            Layout.preferredWidth: showPhonetic ? 0.3 : 0
+                            text: (model && model.phonetic !== undefined) ? model.phonetic : ""
+                            color: Theme.textLight
+                            font.pixelSize: 11
+                            elide: Text.ElideRight
+                            horizontalAlignment: Text.AlignLeft
+                        }
+                    }
+
+                    Rectangle {
+                        anchors.bottom: parent.bottom
+                        width: parent.width-16
+                        height: 1
+                        color: Qt.rgba(Theme.borderInner.r, Theme.borderInner.g, Theme.borderInner.b, 0.3)
+                        visible: index !== wordModel.count-1
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                }
+
+                // 滚动条：默认隐藏，交互时显示，1秒淡出
+                ScrollBar.vertical: ScrollBar {
+                    id: verticalScrollBar
+                    policy: ScrollBar.AsNeeded
+                    hoverEnabled: true
+                    width: 6
+                    anchors.right: parent.right
+                    anchors.rightMargin: 2
+
+                    contentItem: Rectangle {
+                        implicitWidth: (verticalScrollBar.hovered || verticalScrollBar.pressed) ? 8 : 4
+                        radius: implicitWidth / 2
+
+                        color: {
+                            if (verticalScrollBar.pressed)
+                                return Theme.accent
+                            if (verticalScrollBar.hovered)
+                                return Qt.lighter(Theme.accent, 1.3)
+                            return Theme.dark ? Qt.rgba(1, 1, 1, 0.25) : Qt.rgba(0, 0, 0, 0.15)
+                        }
+
+                        opacity: (verticalScrollBar.hovered
+                                  || verticalScrollBar.pressed
+                                  || autoScrollTimer.running
+                                  || listView.moving
+                                  || listView.flicking) ? 1.0 : 0.0
+
+                        Behavior on implicitWidth { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+                        Behavior on opacity       { NumberAnimation { duration: 1000; easing.type: Easing.OutCubic } }
+                    }
+
+                    background: null
+                }
+
+                // 交互层：选择、拖拽、自动滚动、聚焦
+                MouseArea {
+                    id: listMouseArea
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        top: parent.top
+                        bottom: parent.bottom
+                        rightMargin: 8
+                    }
+                    acceptedButtons: Qt.LeftButton
+
+                    // 拖拽以支持鼠标移出窗口后继续接收移动事件
+                    drag.target: dummyDragTarget
+                    drag.threshold: 0
+                    Item { id: dummyDragTarget; visible: false }
+
+                    function toContentPos(x,y) { return listView.contentItem.mapFromItem(this, x, y) }
+
+                    onPressed: function(mouse) {
+                        // 让当前列表获取键盘焦点，以便响应 Ctrl+A
+                        root.forceActiveFocus()
+
+                        var mapped = toContentPos(mouse.x, mouse.y)
+                        internal.pressedIdx = listView.indexAt(mapped.x, mapped.y)
+                        internal.pressStartPos = Qt.point(mapped.x, mapped.y)
+                        internal.isDragging = false
+                        internal.pressedModifiers = mouse.modifiers
+                        if (internal.pressedIdx === -1) {
+                            root.clearOtherList(activeListType)
+                            return
+                        }
+                        internal.pressedSelected = isSelected(internal.pressedIdx)
+                        if (mouse.modifiers & Qt.ShiftModifier) rangeSelect(internal.pressedIdx)
+                    }
+
+                    onPositionChanged: function(mouse) {
+                        // 自动滚动（动态速度，最高约1250px/s）
+                        if (internal.pressedIdx !== -1) {
+                            var mapped = toContentPos(mouse.x, mouse.y)
+                            var margin = 50
+                            var visibleTop = listView.contentY
+                            var visibleBottom = listView.contentY + listView.height
+
+                            var distToTop = mapped.y - visibleTop
+                            var distToBottom = visibleBottom - mapped.y
+
+                            var direction = 0
+                            var distance = 0
+                            if (distToTop < margin) {
+                                direction = -1
+                                distance = margin - distToTop
+                            } else if (distToBottom < margin) {
+                                direction = 1
+                                distance = margin - distToBottom
+                            }
+
+                            if (direction !== 0) {
+                                distance = Math.max(0, Math.min(margin, distance))
+                                var maxStep = 20   // 提升最高速度
+                                var ratio = distance / margin
+                                autoScrollTimer.direction = direction
+                                autoScrollTimer.step = ratio * maxStep
+                                autoScrollTimer.start()
+                            } else {
+                                autoScrollTimer.stop()
+                            }
+                        }
+
+                        // 拖拽选择逻辑
+                        if (internal.pressedIdx === -1) return
+                        var mapped2 = toContentPos(mouse.x, mouse.y)
+                        var dist = Math.abs(mapped2.x - internal.pressStartPos.x) + Math.abs(mapped2.y - internal.pressStartPos.y)
+                        if (dist > 2) {
+                            if (!internal.isDragging) {
+                                var addMode = true
+                                if (internal.pressedModifiers & Qt.ControlModifier) {
+                                    root.clearOtherList(activeListType)
+                                    addMode = !internal.pressedSelected
+                                } else if (internal.pressedModifiers & Qt.ShiftModifier) {
+                                    return
+                                } else {
+                                    root.clearOtherList(activeListType)
+                                    singleSelect(internal.pressedIdx)
+                                }
+                                startDrag(internal.pressedIdx, addMode)
+                            }
+                            if (internal.isDragging) {
+                                var curIdx = listView.indexAt(mapped2.x, mapped2.y)
+                                if (curIdx !== -1 && curIdx !== internal.dragLastIdx) applyDragTo(curIdx)
+                            }
+                        }
+                    }
+
+                    onReleased: function(mouse) {
+                        autoScrollTimer.stop()
+                        if (internal.isDragging) { endDrag(); return }
+                        var mapped = toContentPos(mouse.x, mouse.y)
+                        var idx = listView.indexAt(mapped.x, mapped.y)
+                        if (idx === -1) return
+                        if (mouse.modifiers & Qt.ControlModifier) toggleSelect(idx)
+                        else if (mouse.modifiers & Qt.ShiftModifier) rangeSelect(idx)
+                        else singleSelect(idx)
+                    }
+
+                    onCanceled: {
+                        autoScrollTimer.stop()
+                        if (internal.isDragging) endDrag()
+                    }
+                }
+            }
+        }
+    }
+
+    function startDrag(startIdx, addMode) {
+        internal.isDragging = true
+        internal.dragStartIdx = startIdx
+        internal.dragLastIdx = startIdx
+        internal.dragAddMode = addMode
+        internal.dragOriginal = selectedIndices.slice()
+        applyDragTo(startIdx)
+    }
+
+    function applyDragTo(currentIdx) {
+        var start = Math.min(internal.dragStartIdx, currentIdx)
+        var end = Math.max(internal.dragStartIdx, currentIdx)
+        var newArr = []
+        if (internal.dragAddMode) {
+            var base = internal.dragOriginal.slice()
+            for (var i = start; i <= end; i++)
+                if (base.indexOf(i) === -1) base.push(i)
+            newArr = base
+        } else {
+            for (var j = 0; j < internal.dragOriginal.length; j++) {
+                var idx = internal.dragOriginal[j]
+                if (idx < start || idx > end) newArr.push(idx)
+            }
+        }
+        newArr.sort((a,b)=>a-b)
+        applySelection(newArr, currentIdx)
+        internal.dragLastIdx = currentIdx
+    }
+
+    function endDrag() {
+        internal.isDragging = false
+        internal.dragStartIdx = -1
+        internal.dragLastIdx = -1
+        internal.dragOriginal = []
+    }
+}
+// ============================================================
+// End of file: ui/main/SelectableWordList.qml
+// ============================================================
+
+// ============================================================
+// File: ui/main/SideBarItem.qml
+// ============================================================
+import QtQuick
+
+Item {
+    id: root
+    width: 48
+    height: 34
+
+    property string iconType: "home"
+    property bool active: false
+    signal clicked()
+
+    Rectangle {
+        anchors.centerIn: parent
+        width: 34
+        height: 34
+        radius: 6
+        visible: active
+        color: Theme.dark ? Qt.rgba(45,212,191,0.2) : "#EBE0D5"
+        Behavior on opacity { NumberAnimation { duration: 150 } }
+    }
+
+    Rectangle {
+        anchors.centerIn: parent
+        width: 34
+        height: 34
+        radius: 6
+        visible: mouseArea.containsMouse && !active
+        color: Theme.dark ? Qt.rgba(1,1,1,0.08) : "#F0EAE4"
+    }
+
+    readonly property color activeColor: Theme.dark ? Theme.accent : "#4D3E2E"
+    readonly property color inactiveColor: Theme.dark ? Theme.textLight : "#A59784"
+
+    readonly property string svgHome: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-5v-8H7v8H5a2 2 0 0 1-2-2z'/%3E%3C/svg%3E"
+    readonly property string svgFolder: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z'/%3E%3C/svg%3E"
+    readonly property string svgFile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z'/%3E%3Cpolyline points='13 2 13 9 20 9'/%3E%3C/svg%3E"
+
+    readonly property string iconSource: {
+        var base = iconType === "home" ? svgHome
+                 : iconType === "folder" ? svgFolder
+                 : svgFile
+        var colorHex = (active ? activeColor : inactiveColor).toString().substring(1)
+        return base.replace("currentColor", "%23" + colorHex)
+    }
+
+    Image {
+        anchors.centerIn: parent
+        width: 18
+        height: 18
+        source: iconSource
+        sourceSize: Qt.size(20,20)
+        smooth: true
+    }
+
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+        hoverEnabled: true
+        onClicked: root.clicked()
+    }
+}
+// ============================================================
+// End of file: ui/main/SideBarItem.qml
+// ============================================================
+
+// ============================================================
+// File: ui/main/Theme.qml
+// ============================================================
+pragma Singleton
+import QtQuick
+
+QtObject {
+    // 当前主题标志
+    property bool dark: false
+
+    // 亮色主题配色 (保持原有)
+    readonly property color lightBg: "#FBF9F8"
+    readonly property color lightTitleBg: "#F9F6F4"
+    readonly property color lightSidebarBg: "#F8F5F2"
+    readonly property color lightSurface: "#FFFFFF"
+    readonly property color lightBorder: "#D5CDC3"
+    readonly property color lightBorderInner: "#EFE9E3"
+    readonly property color lightTextDark: "#2C2C2C"
+    readonly property color lightTextMid: "#666666"
+    readonly property color lightTextLight: "#999999"
+    readonly property color lightAccent: "#C4A882"
+    readonly property color lightBtnNormalBg: "#FCFAF8"
+    readonly property color lightBtnNormalBorder: "#EBE4DC"
+    readonly property color lightBtnPrimaryBg: "#F0E8E0"
+    readonly property color lightBtnPrimaryBorder: "#DDD5CC"
+    readonly property color lightBtnDangerBg: "#FDF5F5"
+    readonly property color lightBtnDangerBorder: "#E8D0D0"
+
+    // 暗色主题配色 (保持原有)
+    readonly property color darkBg: "#1E1E2F"
+    readonly property color darkTitleBg: "#2A2A3E"
+    readonly property color darkSidebarBg: "#25253A"
+    readonly property color darkSurface: "#2C2C47"
+    readonly property color darkBorder: "#3D3D5C"
+    readonly property color darkBorderInner: "#33334F"
+    readonly property color darkTextDark: "#F1F1F6"
+    readonly property color darkTextMid: "#C0C0E0"
+    readonly property color darkTextLight: "#9090B0"
+    readonly property color darkAccent: "#2DD4BF"
+    readonly property color darkBtnNormalBg: "#2C2C47"
+    readonly property color darkBtnNormalBorder: "#444466"
+    readonly property color darkBtnPrimaryBg: "#2DD4BF"
+    readonly property color darkBtnPrimaryBorder: "#40E0D0"
+    readonly property color darkBtnDangerBg: "#4A2A2A"
+    readonly property color darkBtnDangerBorder: "#6B4040"
+
+    // ========== 原有动态主题颜色 ==========
+    property color bg:                dark ? darkBg                : lightBg
+    property color titleBg:           dark ? darkTitleBg           : lightTitleBg
+    property color sidebarBg:         dark ? darkSidebarBg         : lightSidebarBg
+    property color surface:           dark ? darkSurface           : lightSurface
+    property color border:            dark ? darkBorder            : lightBorder
+    property color borderInner:       dark ? darkBorderInner       : lightBorderInner
+    property color textDark:          dark ? darkTextDark          : lightTextDark
+    property color textMid:           dark ? darkTextMid           : lightTextMid
+    property color textLight:         dark ? darkTextLight         : lightTextLight
+    property color accent:            dark ? darkAccent            : lightAccent
+    property color btnNormalBg:       dark ? darkBtnNormalBg       : lightBtnNormalBg
+    property color btnNormalBorder:   dark ? darkBtnNormalBorder   : lightBtnNormalBorder
+    property color btnPrimaryBg:      dark ? darkBtnPrimaryBg      : lightBtnPrimaryBg
+    property color btnPrimaryBorder:  dark ? darkBtnPrimaryBorder  : lightBtnPrimaryBorder
+    property color btnDangerBg:       dark ? darkBtnDangerBg       : lightBtnDangerBg
+    property color btnDangerBorder:   dark ? darkBtnDangerBorder   : lightBtnDangerBorder
+    property color btnDangerText:     dark ? "#FFA6A6"             : "#8B5A5A"
+
+    // ========== 新增：现代按钮层级颜色 (Primary/Secondary/Ghost) ==========
+    // Primary (主要操作)
+    readonly property color primaryBtnBgLight:      "#4F46E5"
+    readonly property color primaryBtnHoverLight:    "#4338CA"
+    readonly property color primaryBtnPressedLight:  "#3730A3"
+    readonly property color primaryBtnTextLight:     "#FFFFFF"
+    readonly property color primaryBtnBgDark:        "#2DD4BF"
+    readonly property color primaryBtnHoverDark:      "#40E0D0"
+    readonly property color primaryBtnPressedDark:    "#20C0A0"
+    readonly property color primaryBtnTextDark:      "#0F172A"
+
+    property color primaryBtnBg:       dark ? primaryBtnBgDark       : primaryBtnBgLight
+    property color primaryBtnHover:    dark ? primaryBtnHoverDark    : primaryBtnHoverLight
+    property color primaryBtnPressed:  dark ? primaryBtnPressedDark  : primaryBtnPressedLight
+    property color primaryBtnText:     dark ? primaryBtnTextDark     : primaryBtnTextLight
+
+    // Secondary (次要操作)
+    readonly property color secondaryBtnBgLight:         "#F3F4F6"
+    readonly property color secondaryBtnBorderLight:     "#E5E7EB"
+    readonly property color secondaryBtnHoverBgLight:    "#E5E7EB"
+    readonly property color secondaryBtnHoverBorderLight:"#D1D5DB"
+    readonly property color secondaryBtnTextLight:       "#1F2937"
+    readonly property color secondaryBtnBgDark:          "#3A3A55"
+    readonly property color secondaryBtnBorderDark:      "#4A4A6A"
+    readonly property color secondaryBtnHoverBgDark:     "#4A4A6A"
+    readonly property color secondaryBtnHoverBorderDark: "#5A5A7A"
+    readonly property color secondaryBtnTextDark:        "#F1F1F6"
+
+    property color secondaryBtnBg:          dark ? secondaryBtnBgDark          : secondaryBtnBgLight
+    property color secondaryBtnBorder:      dark ? secondaryBtnBorderDark      : secondaryBtnBorderLight
+    property color secondaryBtnHoverBg:     dark ? secondaryBtnHoverBgDark     : secondaryBtnHoverBgLight
+    property color secondaryBtnHoverBorder: dark ? secondaryBtnHoverBorderDark : secondaryBtnHoverBorderLight
+    property color secondaryBtnText:        dark ? secondaryBtnTextDark        : secondaryBtnTextLight
+
+    // Ghost (低调操作)
+    readonly property color ghostBtnTextLight:    "#4B5563"
+    readonly property color ghostBtnHoverBgLight: "#F3F4F6"
+    readonly property color ghostBtnTextDark:     "#C0C0E0"
+    readonly property color ghostBtnHoverBgDark:  Qt.rgba(1,1,1,0.08)
+
+    property color ghostBtnText:    dark ? ghostBtnTextDark    : ghostBtnTextLight
+    property color ghostBtnHoverBg: dark ? ghostBtnHoverBgDark : ghostBtnHoverBgLight
+
+    // ========== 颜色动画 ==========
+    Behavior on bg          { ColorAnimation { duration: 300 } }
+    Behavior on titleBg     { ColorAnimation { duration: 300 } }
+    Behavior on sidebarBg   { ColorAnimation { duration: 300 } }
+    Behavior on surface     { ColorAnimation { duration: 300 } }
+    Behavior on border      { ColorAnimation { duration: 300 } }
+    Behavior on borderInner { ColorAnimation { duration: 300 } }
+    Behavior on textDark    { ColorAnimation { duration: 300 } }
+    Behavior on textMid     { ColorAnimation { duration: 300 } }
+    Behavior on textLight   { ColorAnimation { duration: 300 } }
+    Behavior on accent      { ColorAnimation { duration: 300 } }
+    Behavior on btnNormalBg     { ColorAnimation { duration: 300 } }
+    Behavior on btnNormalBorder { ColorAnimation { duration: 300 } }
+    Behavior on btnPrimaryBg    { ColorAnimation { duration: 300 } }
+    Behavior on btnPrimaryBorder{ ColorAnimation { duration: 300 } }
+    Behavior on btnDangerBg     { ColorAnimation { duration: 300 } }
+    Behavior on btnDangerBorder { ColorAnimation { duration: 300 } }
+    Behavior on btnDangerText   { ColorAnimation { duration: 300 } }
+
+    Behavior on primaryBtnBg      { ColorAnimation { duration: 200 } }
+    Behavior on primaryBtnHover   { ColorAnimation { duration: 200 } }
+    Behavior on primaryBtnPressed { ColorAnimation { duration: 200 } }
+    Behavior on primaryBtnText    { ColorAnimation { duration: 200 } }
+    Behavior on secondaryBtnBg          { ColorAnimation { duration: 200 } }
+    Behavior on secondaryBtnBorder      { ColorAnimation { duration: 200 } }
+    Behavior on secondaryBtnHoverBg     { ColorAnimation { duration: 200 } }
+    Behavior on secondaryBtnHoverBorder { ColorAnimation { duration: 200 } }
+    Behavior on secondaryBtnText        { ColorAnimation { duration: 200 } }
+    Behavior on ghostBtnText     { ColorAnimation { duration: 200 } }
+    Behavior on ghostBtnHoverBg  { ColorAnimation { duration: 200 } }
+}
+// ============================================================
+// End of file: ui/main/Theme.qml
+// ============================================================
+
+// ============================================================
+// File: ui/main/ThemeToggleBtn.qml
+// ============================================================
+import QtQuick
+
+Rectangle {
+    id: root
+    width: 32; height: 26; radius: 4
+
+    // 不再需要 themeIndex 属性，改用 Theme.dark
+    signal toggleTheme()
+
+    color: {
+        if (mouseArea.containsMouse) {
+            return Theme.dark ? Qt.rgba(1,1,1,0.15) : Qt.rgba(0,0,0,0.08)
+        }
+        return "transparent"
+    }
+
+    Image {
+        anchors.centerIn: parent; width: 18; height: 18
+        // 根据 Theme.dark 选择对应的 SVG（内嵌数据与原代码一致，只替换了颜色判断）
+        source: Theme.dark ?
+            "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%238080a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'/%3E%3C/svg%3E" :
+            "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Cline x1='12' y1='1' x2='12' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='23'/%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'/%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'/%3E%3Cline x1='1' y1='12' x2='3' y2='12'/%3E%3Cline x1='21' y1='12' x2='23' y2='12'/%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'/%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'/%3E%3C/svg%3E"
+        sourceSize: Qt.size(20,20); smooth: true
+    }
+
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+        hoverEnabled: true
+        onClicked: root.toggleTheme()
+    }
+}
+// ============================================================
+// End of file: ui/main/ThemeToggleBtn.qml
+// ============================================================
+
+// ============================================================
+// File: ui/main/WindowControlBtn.qml
+// ============================================================
+import QtQuick
+
+Rectangle {
+    id: root
+    property string text: "—"
+    property bool isClose: false
+    signal clicked()
+
+    width: 32; height: 26; radius: 4
+
+    color: {
+        if (mouseArea.containsMouse) {
+            if (isClose) return "#E04343"
+            return Theme.btnNormalBg
+        }
+        return "transparent"
+    }
+
+    Text {
+        anchors.centerIn: parent
+        text: root.text
+        font.pixelSize: 16
+        color: {
+            if (isClose) {
+                return mouseArea.containsMouse ? "white" : Theme.textMid
+            }
+            return Theme.textMid
+        }
+    }
+
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+        hoverEnabled: true
+        onClicked: root.clicked()
+    }
+}
+// ============================================================
+// End of file: ui/main/WindowControlBtn.qml
+// ============================================================
+
+// ============================================================
+// File: ui/main/WordManagePage.qml
+// ============================================================
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+
+Rectangle {
+    id: root
+    color: "transparent"
+
+    // 原始数据模型（熟词库）
+    property ListModel knownWordsModel: ListModel {}
+    // 筛选后的显示模型（绑定给 SelectableWordList）
+    property ListModel filteredModel: ListModel {}
+
+    // 外部交互信号
+    signal addWord(string word, string translation, string phonetic)
+    signal deleteWord(string word)
+
+    // 主窗口引用
+    property var rootWindow: null
+    // 当前选中的索引列表（用于批量删除）
+    property var selectedIndices: []
+
+    // ----------------- 高级筛选逻辑 -----------------
+    function rebuildAdvancedFilter() {
+        filteredModel.clear()
+        var keyword = searchField.text
+        var caseOn = caseSensitive.checked
+        var exact = exactMatch.checked
+        var field = fieldSelector.currentIndex
+
+        function match(src) {
+            if (!caseOn) {
+                src = src.toLowerCase()
+                keyword = keyword.toLowerCase()
+            }
+            if (exact) return src === keyword
+            return src.indexOf(keyword) !== -1
+        }
+
+        for (var i = 0; i < knownWordsModel.count; ++i) {
+            var item = knownWordsModel.get(i)
+            var ok = false
+            if (field === 0) // 全部
+                ok = match(item.word) || match(item.translation) || match(item.phonetic)
+            else if (field === 1)
+                ok = match(item.word)
+            else if (field === 2)
+                ok = match(item.translation)
+            else if (field === 3)
+                ok = match(item.phonetic)
+
+            if (ok) filteredModel.append(item)
+        }
+        updateStats()
+    }
+
+    // 数据变更时自动刷新
+    Connections {
+        target: knownWordsModel
+        function onRowsInserted() { rebuildAdvancedFilter() }
+        function onRowsRemoved() { rebuildAdvancedFilter() }
+    }
+    Component.onCompleted: rebuildAdvancedFilter()
+
+    // ----------------- 导出函数 -----------------
+    function exportCSV() {
+        var csv = "word,translation,phonetic\n"
+        for (var i = 0; i < knownWordsModel.count; ++i) {
+            var item = knownWordsModel.get(i)
+            csv += item.word + "," + item.translation + "," + item.phonetic + "\n"
+        }
+        if (rootWindow) {
+            var dialog = Qt.createComponent("MessageDialog.qml")
+            if (dialog.status === Component.Ready) {
+                var dlg = dialog.createObject(rootWindow)
+                dlg.dialogTitle = "导出 CSV"
+                dlg.dialogText = csv
+                dlg.standardButtons = "ok"
+                dlg.openCentered(rootWindow)
+            }
+        } else console.log(csv)
+    }
+
+    function exportJSON() {
+        var arr = []
+        for (var i = 0; i < knownWordsModel.count; ++i) arr.push(knownWordsModel.get(i))
+        var json = JSON.stringify(arr, null, 2)
+        if (rootWindow) {
+            var dialog = Qt.createComponent("MessageDialog.qml")
+            if (dialog.status === Component.Ready) {
+                var dlg = dialog.createObject(rootWindow)
+                dlg.dialogTitle = "导出 JSON"
+                dlg.dialogText = json
+                dlg.standardButtons = "ok"
+                dlg.openCentered(rootWindow)
+            }
+        } else console.log(json)
+    }
+
+    function updateStats() {
+        statText.text = `📊 总词数: ${knownWordsModel.count}  |  当前显示: ${filteredModel.count}`
+    }
+
+    // ----------------- 主布局：左侧表格 + 右侧操作面板 -----------------
+    RowLayout {
+        anchors.fill: parent
+        anchors.margins: 24
+        spacing: 20
+
+        // 左侧：熟词表格（高级质感卡片）
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            radius: 18
+            color: "transparent"
+
+            // 模拟阴影层
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: -2
+                radius: 18
+                color: Qt.rgba(0,0,0,0.05)
+                z: -1
+            }
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: -4
+                radius: 18
+                color: Qt.rgba(0,0,0,0.03)
+                z: -2
+            }
+
+            // 主卡片背景
+            Rectangle {
+                anchors.fill: parent
+                radius: 18
+                color: Theme.surface
+                border.color: Qt.rgba(Theme.borderInner.r, Theme.borderInner.g, Theme.borderInner.b, 0.5)
+                border.width: 1
+                // 细微渐变增加质感
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: Qt.rgba(1,1,1,0.08) }
+                    GradientStop { position: 1.0; color: "transparent" }
+                }
+            }
+
+            SelectableWordList {
+                id: wordListComp
+                anchors.fill: parent
+                anchors.margins: 16
+                title: "✨ 熟词库"
+                iconColor: "#28a745"
+                iconSvg: "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='8 12 11 15 16 9'/%3E%3C/svg%3E"
+                wordModel: filteredModel
+                activeListType: "knownWord"
+                showTranslation: true
+                showPhonetic: true
+                onSelectionChanged: function(indices) {
+                    root.selectedIndices = indices.slice()
+                }
+            }
+        }
+
+        // 右侧：操作面板（悬浮质感卡片）
+        Rectangle {
+            Layout.preferredWidth: 300
+            Layout.fillHeight: true
+            radius: 18
+
+            // 模拟阴影层
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: -2
+                radius: 18
+                color: Qt.rgba(0,0,0,0.05)
+                z: -1
+            }
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: -4
+                radius: 18
+                color: Qt.rgba(0,0,0,0.03)
+                z: -2
+            }
+
+            // 主面板
+            Rectangle {
+                anchors.fill: parent
+                radius: 18
+                color: Theme.surface
+                border.color: Qt.rgba(Theme.borderInner.r, Theme.borderInner.g, Theme.borderInner.b, 0.5)
+                border.width: 1
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: Qt.rgba(1,1,1,0.06) }
+                    GradientStop { position: 1.0; color: "transparent" }
+                }
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    spacing: 16
+
+                    // 面板标题
+                    Text {
+                        text: "⚡ 操作面板"
+                        font.pixelSize: 16
+                        font.bold: true
+                        color: Theme.textDark
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.bottomMargin: 4
+                    }
+
+                    // TabBar（带底部指示器）
+                    TabBar {
+                        id: tabBar
+                        Layout.fillWidth: true
+                        background: Rectangle {
+                            color: Theme.surface
+                            radius: 12
+                            border.color: Qt.rgba(Theme.borderInner.r, Theme.borderInner.g, Theme.borderInner.b, 0.3)
+                        }
+
+                        TabButton {
+                            text: "📝 基础"
+                            font.pixelSize: 11
+                            contentItem: Text {
+                                text: parent.text
+                                color: parent.checked ? Theme.textDark : Theme.textMid
+                                font.pixelSize: 11
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            background: Rectangle {
+                                color: parent.checked ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.1) : "transparent"
+                                radius: 10
+                                Behavior on color { ColorAnimation { duration: 200 } }
+                            }
+                        }
+                        TabButton {
+                            text: "🔍 查找"
+                            font.pixelSize: 11
+                            contentItem: Text {
+                                text: parent.text
+                                color: parent.checked ? Theme.textDark : Theme.textMid
+                                font.pixelSize: 11
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            background: Rectangle {
+                                color: parent.checked ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.1) : "transparent"
+                                radius: 10
+                                Behavior on color { ColorAnimation { duration: 200 } }
+                            }
+                        }
+                        TabButton {
+                            text: "📂 导入/出"
+                            font.pixelSize: 11
+                            contentItem: Text {
+                                text: parent.text
+                                color: parent.checked ? Theme.textDark : Theme.textMid
+                                font.pixelSize: 11
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            background: Rectangle {
+                                color: parent.checked ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.1) : "transparent"
+                                radius: 10
+                                Behavior on color { ColorAnimation { duration: 200 } }
+                            }
+                        }
+                        TabButton {
+                            text: "📊 统计"
+                            font.pixelSize: 11
+                            contentItem: Text {
+                                text: parent.text
+                                color: parent.checked ? Theme.textDark : Theme.textMid
+                                font.pixelSize: 11
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            background: Rectangle {
+                                color: parent.checked ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.1) : "transparent"
+                                radius: 10
+                                Behavior on color { ColorAnimation { duration: 200 } }
+                            }
+                        }
+                    }
+
+                    // 操作面板 StackLayout
+                    StackLayout {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        currentIndex: tabBar.currentIndex
+
+                        // ===== 基础操作 =====
+                        ColumnLayout {
+                            spacing: 10
+
+                            // 带图标的输入框
+                            RowLayout {
+                                Text { text: "📖"; font.pixelSize: 14 }
+                                TextField {
+                                    id: newWordField
+                                    Layout.fillWidth: true
+                                    placeholderText: "单词"
+                                    color: Theme.textDark
+                                    font.pixelSize: 12
+                                    background: Rectangle {
+                                        radius: 12
+                                        color: Theme.surface
+                                        border.color: Theme.borderInner
+                                    }
+                                }
+                            }
+                            RowLayout {
+                                Text { text: "📝"; font.pixelSize: 14 }
+                                TextField {
+                                    id: newTransField
+                                    Layout.fillWidth: true
+                                    placeholderText: "释义"
+                                    color: Theme.textDark
+                                    font.pixelSize: 12
+                                    background: Rectangle {
+                                        radius: 12
+                                        color: Theme.surface
+                                        border.color: Theme.borderInner
+                                    }
+                                }
+                            }
+                            RowLayout {
+                                Text { text: "🔊"; font.pixelSize: 14 }
+                                TextField {
+                                    id: newPhoneticField
+                                    Layout.fillWidth: true
+                                    placeholderText: "音标"
+                                    color: Theme.textDark
+                                    font.pixelSize: 12
+                                    background: Rectangle {
+                                        radius: 12
+                                        color: Theme.surface
+                                        border.color: Theme.borderInner
+                                    }
+                                }
+                            }
+
+                            // 添加按钮（悬停效果）
+                            Button {
+                                text: "➕ 添加单词"
+                                font.pixelSize: 11
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 34
+                                background: Rectangle {
+                                    radius: 14
+                                    color: parent.hovered ? Qt.lighter(Theme.btnPrimaryBg, 1.1) : Theme.btnPrimaryBg
+                                    border.color: Theme.btnPrimaryBorder
+                                    Behavior on color { ColorAnimation { duration: 150 } }
+                                }
+                                contentItem: Text {
+                                    text: parent.text
+                                    color: Theme.textDark
+                                    font.pixelSize: 11
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                onClicked: {
+                                    var word = newWordField.text.trim().toLowerCase()
+                                    if (word === "") { if (rootWindow) rootWindow.statusTextValue = "⚠️ 请输入单词"; return }
+                                    for (var i = 0; i < knownWordsModel.count; ++i)
+                                        if (knownWordsModel.get(i).word.toLowerCase() === word) { if (rootWindow) rootWindow.statusTextValue = "⚠️ 单词已存在"; return }
+                                    root.addWord(word, newTransField.text.trim() || "待补充", newPhoneticField.text.trim())
+                                    newWordField.clear(); newTransField.clear(); newPhoneticField.clear()
+                                    if (rootWindow) rootWindow.statusTextValue = `✅ 已添加单词: ${word}`
+                                }
+                            }
+
+                            // 删除选中按钮
+                            Button {
+                                text: "🗑️ 删除选中"
+                                font.pixelSize: 11
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 34
+                                background: Rectangle {
+                                    radius: 14
+                                    color: parent.hovered ? Qt.lighter(Theme.btnDangerBg, 1.1) : Theme.btnDangerBg
+                                    border.color: Theme.btnDangerBorder
+                                    Behavior on color { ColorAnimation { duration: 150 } }
+                                }
+                                contentItem: Text {
+                                    text: parent.text
+                                    color: Theme.btnDangerText
+                                    font.pixelSize: 11
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                onClicked: {
+                                    if (selectedIndices.length === 0) {
+                                        if (rootWindow) rootWindow.statusTextValue = "⚠️ 未选中任何单词"
+                                        return
+                                    }
+                                    if (rootWindow) {
+                                        var dialog = Qt.createComponent("MessageDialog.qml")
+                                        if (dialog.status === Component.Ready) {
+                                            var dlg = dialog.createObject(rootWindow)
+                                            dlg.dialogTitle = "批量删除"
+                                            dlg.dialogText = `确认删除选中的 ${selectedIndices.length} 个单词？`
+                                            dlg.standardButtons = "okcancel"
+                                            dlg.accepted.connect(function() {
+                                                var sorted = selectedIndices.slice().sort((a,b) => b-a)
+                                                for (var idx of sorted) root.deleteWord(filteredModel.get(idx).word)
+                                                dlg.destroy()
+                                            })
+                                            dlg.openCentered(rootWindow)
+                                        }
+                                    } else {
+                                        var sorted = selectedIndices.slice().sort((a,b) => b-a)
+                                        for (var idx of sorted) root.deleteWord(filteredModel.get(idx).word)
+                                    }
+                                }
+                            }
+                        }
+
+                        // ===== 高级查找 =====
+                        ColumnLayout {
+                            spacing: 10
+
+                            // 搜索框带图标
+                            RowLayout {
+                                Text { text: "🔍"; font.pixelSize: 14 }
+                                TextField {
+                                    id: searchField
+                                    Layout.fillWidth: true
+                                    placeholderText: "输入关键词..."
+                                    color: Theme.textDark
+                                    font.pixelSize: 12
+                                    background: Rectangle {
+                                        radius: 12
+                                        color: Theme.surface
+                                        border.color: Theme.borderInner
+                                    }
+                                    onTextChanged: rebuildAdvancedFilter()
+                                }
+                            }
+
+                            // 字段选择
+                            ComboBox {
+                                id: fieldSelector
+                                Layout.fillWidth: true
+                                model: ["全部字段", "单词", "释义", "音标"]
+                                background: Rectangle {
+                                    radius: 12
+                                    color: Theme.surface
+                                    border.color: Theme.borderInner
+                                }
+                                contentItem: Text {
+                                    text: parent.displayText
+                                    color: Theme.textDark
+                                    font.pixelSize: 12
+                                    verticalAlignment: Text.AlignVCenter
+                                    leftPadding: 12
+                                }
+                            }
+
+                            CheckBox {
+                                id: caseSensitive
+                                text: "区分大小写"
+                                font.pixelSize: 12
+                                contentItem: Text {
+                                    text: parent.text
+                                    color: Theme.textMid
+                                    font.pixelSize: 12
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                indicator: Rectangle {
+                                    implicitWidth: 18; implicitHeight: 18
+                                    radius: 4
+                                    color: parent.checked ? Theme.btnPrimaryBg : Theme.surface
+                                    border.color: Theme.borderInner
+                                    Behavior on color { ColorAnimation { duration: 150 } }
+                                }
+                            }
+                            CheckBox {
+                                id: exactMatch
+                                text: "精确匹配"
+                                font.pixelSize: 12
+                                contentItem: Text {
+                                    text: parent.text
+                                    color: Theme.textMid
+                                    font.pixelSize: 12
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                indicator: Rectangle {
+                                    implicitWidth: 18; implicitHeight: 18
+                                    radius: 4
+                                    color: parent.checked ? Theme.btnPrimaryBg : Theme.surface
+                                    border.color: Theme.borderInner
+                                    Behavior on color { ColorAnimation { duration: 150 } }
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 8
+                                Button {
+                                    text: "应用"
+                                    Layout.fillWidth: true
+                                    font.pixelSize: 11
+                                    background: Rectangle {
+                                        radius: 12
+                                        color: parent.hovered ? Qt.lighter(Theme.btnPrimaryBg, 1.1) : Theme.btnPrimaryBg
+                                        border.color: Theme.btnPrimaryBorder
+                                        Behavior on color { ColorAnimation { duration: 150 } }
+                                    }
+                                    onClicked: rebuildAdvancedFilter()
+                                }
+                                Button {
+                                    text: "清空"
+                                    Layout.fillWidth: true
+                                    font.pixelSize: 11
+                                    background: Rectangle {
+                                        radius: 12
+                                        color: parent.hovered ? Qt.lighter(Theme.btnNormalBg, 1.1) : Theme.btnNormalBg
+                                        border.color: Theme.btnNormalBorder
+                                        Behavior on color { ColorAnimation { duration: 150 } }
+                                    }
+                                    onClicked: searchField.clear()
+                                }
+                            }
+                        }
+
+                        // ===== 导入导出 =====
+                        ColumnLayout {
+                            spacing: 12
+
+                            Button {
+                                text: "📂 导入 CSV"
+                                font.pixelSize: 11
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 36
+                                background: Rectangle {
+                                    radius: 12
+                                    color: parent.hovered ? Qt.lighter(Theme.btnNormalBg, 1.1) : Theme.btnNormalBg
+                                    border.color: Theme.btnNormalBorder
+                                    Behavior on color { ColorAnimation { duration: 150 } }
+                                }
+                                contentItem: Text {
+                                    text: parent.text
+                                    color: Theme.textMid
+                                    font.pixelSize: 11
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                onClicked: {
+                                    if (rootWindow) rootWindow.showDemoDialog("导入", "导入 CSV 功能演示（待实现）")
+                                }
+                            }
+                            Button {
+                                text: "📤 导出 CSV"
+                                font.pixelSize: 11
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 36
+                                background: Rectangle {
+                                    radius: 12
+                                    color: parent.hovered ? Qt.lighter(Theme.btnNormalBg, 1.1) : Theme.btnNormalBg
+                                    border.color: Theme.btnNormalBorder
+                                    Behavior on color { ColorAnimation { duration: 150 } }
+                                }
+                                contentItem: Text {
+                                    text: parent.text
+                                    color: Theme.textMid
+                                    font.pixelSize: 11
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                onClicked: exportCSV()
+                            }
+                            Button {
+                                text: "📤 导出 JSON"
+                                font.pixelSize: 11
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 36
+                                background: Rectangle {
+                                    radius: 12
+                                    color: parent.hovered ? Qt.lighter(Theme.btnNormalBg, 1.1) : Theme.btnNormalBg
+                                    border.color: Theme.btnNormalBorder
+                                    Behavior on color { ColorAnimation { duration: 150 } }
+                                }
+                                contentItem: Text {
+                                    text: parent.text
+                                    color: Theme.textMid
+                                    font.pixelSize: 11
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                onClicked: exportJSON()
+                            }
+                        }
+
+                        // ===== 统计 =====
+                        ColumnLayout {
+                            spacing: 14
+                            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+
+                            Text {
+                                id: statText
+                                text: `📊 总词数: ${knownWordsModel.count}  |  当前显示: ${filteredModel.count}`
+                                font.pixelSize: 13
+                                color: Theme.textDark
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.fillWidth: true
+                                wrapMode: Text.WordWrap
+                            }
+
+                            Button {
+                                text: "🔄 刷新统计"
+                                font.pixelSize: 11
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 34
+                                background: Rectangle {
+                                    radius: 14
+                                    color: parent.hovered ? Qt.lighter(Theme.btnNormalBg, 1.1) : Theme.btnNormalBg
+                                    border.color: Theme.btnNormalBorder
+                                    Behavior on color { ColorAnimation { duration: 150 } }
+                                }
+                                contentItem: Text {
+                                    text: parent.text
+                                    color: Theme.textMid
+                                    font.pixelSize: 11
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                onClicked: updateStats()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+// ============================================================
+// End of file: ui/main/WordManagePage.qml
+// ============================================================
+
+// ============================================================
+// File: ui/main/WordTable.qml
+// ============================================================
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+
+Rectangle {
+    id: tableRoot
+    property ListModel rootModel: ListModel {}
+    property string filterText: ""
+    property int selectedRow: -1
+
+    signal rowSelected(int index, var itemData)
+
+    color: "transparent"
+    clip: true
+
+    property ListModel displayModel: ListModel {}
+    property int _filterStamp: rootModel.count + filterText.length
+    on_FilterStampChanged: _updateDisplayModel()
+
+    function _updateDisplayModel() {
+        displayModel.clear()
+        let keyword = filterText.trim().toLowerCase()
+        for (let i = 0; i < rootModel.count; ++i) {
+            let item = rootModel.get(i)
+            if (keyword === "" ||
+                item.word.toLowerCase().indexOf(keyword) !== -1 ||
+                item.translation.toLowerCase().indexOf(keyword) !== -1) {
+                displayModel.append(item)
+            }
+        }
+        if (selectedRow !== -1) {
+            selectedRow = -1
+            rowSelected(-1, null)
+        }
+    }
+
+    // 表头
+    RowLayout {
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 34
+        spacing: 1
+        z: 2
+
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredWidth: 140
+            height: parent.height
+            color: Theme.dark ? "#2A2A3E" : "#F5F0EB"   // 固定色，轻微区分表头
+            Text {
+                anchors.centerIn: parent
+                text: "单词"
+                font.pixelSize: 12; font.bold: true
+                color: Theme.textMid
+            }
+            Rectangle {
+                anchors.bottom: parent.bottom
+                width: parent.width; height: 1
+                color: Theme.borderInner
+            }
+        }
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredWidth: 280
+            height: parent.height
+            color: Theme.dark ? "#2A2A3E" : "#F5F0EB"
+            Text {
+                anchors.centerIn: parent
+                text: "释义"
+                font.pixelSize: 12; font.bold: true
+                color: Theme.textMid
+            }
+            Rectangle {
+                anchors.bottom: parent.bottom
+                width: parent.width; height: 1
+                color: Theme.borderInner
+            }
+        }
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredWidth: 120
+            height: parent.height
+            color: Theme.dark ? "#2A2A3E" : "#F5F0EB"
+            Text {
+                anchors.centerIn: parent
+                text: "音标"
+                font.pixelSize: 12; font.bold: true
+                color: Theme.textMid
+            }
+            Rectangle {
+                anchors.bottom: parent.bottom
+                width: parent.width; height: 1
+                color: Theme.borderInner
+            }
+        }
+    }
+
+    ScrollView {
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.topMargin: 34
+        clip: true
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+
+        ListView {
+            id: listView
+            anchors.fill: parent
+            model: displayModel
+            clip: true
+            spacing: 0
+
+            delegate: Rectangle {
+                width: listView.width
+                height: 38
+                color: {
+                    if (listView.currentIndex === index)
+                        return Theme.dark ? Qt.rgba(45,212,191,0.25) : "#E8DCCC"
+                    return (index % 2 === 0) ?
+                        (Theme.dark ? Qt.rgba(1,1,1,0.04) : Qt.rgba(0,0,0,0.02)) :
+                        "transparent"
+                }
+
+                RowLayout {
+                    anchors.fill: parent
+                    spacing: 1
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 140
+                        height: parent.height
+                        color: "transparent"
+                        Text {
+                            anchors.left: parent.left
+                            anchors.leftMargin: 12
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: model.word
+                            color: Theme.textDark
+                            font.pixelSize: 13
+                            elide: Text.ElideRight
+                        }
+                    }
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 280
+                        height: parent.height
+                        color: "transparent"
+                        Text {
+                            anchors.left: parent.left
+                            anchors.leftMargin: 12
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: model.translation
+                            color: Theme.textMid
+                            font.pixelSize: 12
+                            elide: Text.ElideRight
+                        }
+                    }
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 120
+                        height: parent.height
+                        color: "transparent"
+                        Text {
+                            anchors.left: parent.left
+                            anchors.leftMargin: 12
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: model.phonetic || ""
+                            color: Theme.textLight
+                            font.pixelSize: 11
+                            elide: Text.ElideRight
+                        }
+                    }
+                }
+
+                Rectangle {
+                    anchors.bottom: parent.bottom
+                    width: parent.width; height: 1
+                    color: Theme.borderInner
+                    visible: index !== displayModel.count - 1
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.LeftButton
+                    onClicked: {
+                        listView.currentIndex = index
+                        selectedRow = index
+                        rowSelected(index, model)
+                    }
+                }
+            }
+
+            Rectangle {
+                visible: displayModel.count === 0
+                anchors.centerIn: parent
+                width: parent.width; height: 50
+                color: "transparent"
+                Text {
+                    anchors.centerIn: parent
+                    text: "暂无数据"
+                    color: Theme.textLight
+                    font.pixelSize: 12
+                }
+            }
+        }
+    }
+
+    onRootModelChanged: _updateDisplayModel()
+}
+// ============================================================
+// End of file: ui/main/WordTable.qml
+// ============================================================
+
+// ============================================================
+// File: ui/result/ResultDisplayWidget.qml
+// ============================================================
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+
+ApplicationWindow {
+    id: mainWindow
+    visible: true
+    width: 850
+    height: 550
+    minimumWidth: 850
+    maximumWidth: 850
+    minimumHeight: 550
+    maximumHeight: 550
+    title: "English Unfamiliar Words Extractor（EUWE）\t V1.1"
+
+    font.family: "Microsoft YaHei"
+    font.weight: Font.Normal
+
+    // ==================== 颜色常量 ====================
+    readonly property color bgColor: "#f8fafc"
+    readonly property color whiteBg: "#ffffff"
+    readonly property color borderColor: "#e2e8f0"
+    readonly property color textDark: "#2d3748"
+    readonly property color textMuted: "#718096"
+    readonly property color blueStart: "#4299e1"
+    readonly property color blueEnd: "#667eea"
+    readonly property color orangeBtn: "#ed8936"
+    readonly property color orangeBtnHover: "#dd6b20"
+    readonly property color greenBtn: "#48bb78"
+    readonly property color greenBtnHover: "#38a169"
+    readonly property color purpleBtn: "#9f7aea"
+    readonly property color purpleBtnHover: "#805ad5"
+    readonly property color grayBtn: "#cbd5e0"
+    readonly property color grayBtnHover: "#a0aec0"
+
+    Rectangle {
+        anchors.fill: parent
+        color: bgColor
+
+        // ========== 顶部标题栏 ==========
+        Rectangle {
+            id: titleBar
+            x: 0; y: 0
+            width: 850; height: 70
+            color: whiteBg
+            border { color: borderColor; width: 1 }
+
+            Rectangle {
+                anchors { left: parent.left; right: parent.right; top: parent.bottom }
+                height: 3
+                gradient: Gradient {
+                    orientation: Gradient.Horizontal
+                    GradientStop { position: 0.0; color: blueStart }
+                    GradientStop { position: 0.5; color: purpleBtn }
+                    GradientStop { position: 1.0; color: orangeBtn }
+                }
+            }
+
+            Text {
+                x: 20; y: 15
+                width: 40; height: 40
+                text: "📝"
+                font.pixelSize: 30
+                renderType: Text.NativeRendering
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
+            Text {
+                x: 70; y: 15
+                text: "生词提取工具 EUWE"
+                font.pixelSize: 18
+                font.bold: true
+                renderType: Text.NativeRendering
+                color: textDark
+            }
+            Text {
+                x: 70; y: 40
+                text: "Made By Bcaid"
+                font.pixelSize: 12
+                renderType: Text.NativeRendering
+                color: textMuted
+            }
+
+            // ---------- 打开熟词库按钮（重构，文字随动）----------
+            Item {
+                id: openDbWrapper
+                x: 700; y: 15
+                width: 130; height: 40
+                property string hoverState: ""
+
+                // 阴影层
+                Rectangle {
+                    id: openDbShadow
+                    anchors.fill: parent
+                    anchors.margins: -3
+                    radius: parent.height / 2 + 3
+                    color: "#000000"
+                    opacity: 0
+                    Behavior on opacity {
+                        NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                    }
+                }
+
+                // 按钮内容整体（带变换）
+                Item {
+                    id: openDbContainer
+                    anchors.fill: parent
+                    transform: Translate {
+                        id: openDbTranslate
+                        Behavior on y {
+                            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                        }
+                    }
+
+                    // 背景矩形 + 两层渐变
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 20
+
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: parent.radius
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0.0; color: blueStart }
+                                GradientStop { position: 1.0; color: blueEnd }
+                            }
+                            opacity: openDbWrapper.hoverState === "hovered" ? 0 : 1
+                            Behavior on opacity { NumberAnimation { duration: 150 } }
+                        }
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: parent.radius
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0.0; color: "#3182ce" }
+                                GradientStop { position: 1.0; color: "#5a67d8" }
+                            }
+                            opacity: openDbWrapper.hoverState === "hovered" ? 1 : 0
+                            Behavior on opacity { NumberAnimation { duration: 150 } }
+                        }
+                    }
+
+                    // 文字（作为容器子项，随容器移动）
+                    Text {
+                        anchors.centerIn: parent
+                        text: "📚 打开熟词库"
+                        color: "white"
+                        font.pixelSize: 14
+                        font.bold: true
+                        renderType: Text.NativeRendering
+                    }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onEntered: {
+                        openDbWrapper.hoverState = "hovered"
+                        openDbTranslate.y = -2
+                        openDbShadow.opacity = 0.08
+                    }
+                    onExited: {
+                        openDbWrapper.hoverState = ""
+                        openDbTranslate.y = 0
+                        openDbShadow.opacity = 0
+                    }
+                    onClicked: console.log("打开数据库")
+                }
+            }
+        }
+
+        // ========== 文本区标题 ==========
+        Text {
+            x: 20; y: 90
+            text: "📄 待提取文本"
+            font.pixelSize: 14
+            font.bold: true
+            renderType: Text.NativeRendering
+            color: textDark
+        }
+
+        // ========== 文本编辑区 ==========
+        ScrollView {
+            id: scrollView
+            x: 20; y: 120
+            width: 550; height: 280
+            clip: true
+
+            TextArea {
+                id: textArea
+                anchors.fill: parent
+                font.pixelSize: 13
+                renderType: Text.NativeRendering      // ← 关键：输入文字变 Widget 风格
+                placeholderText: "在此输入文本，或点击下方按钮导入文件/图片..."
+                wrapMode: TextEdit.Wrap
+                leftPadding: 15
+                rightPadding: 10
+                topPadding: 12
+                bottomPadding: 10
+
+                background: Rectangle {
+                    color: "white"
+                    border.color: textArea.activeFocus ? blueStart : borderColor
+                    border.width: 2
+                    radius: 8
+                    Behavior on border.color {
+                        ColorAnimation { duration: 200; easing.type: Easing.InOutQuad }
+                    }
+                }
+
+                onTextChanged: updateStats()
+            }
+        }
+
+        // ========== 右侧功能组 ==========
+        Item {
+            id: functionGroup
+            x: 590; y: 120
+            width: 240; height: 280
+
+            Rectangle {
+                anchors.fill: parent
+                color: "transparent"
+                border { color: borderColor; width: 2 }
+                radius: 10
+            }
+
+            Rectangle {
+                x: 10; y: -9
+                width: 90; height: 20
+                color: bgColor
+                Text {
+                    anchors.centerIn: parent
+                    text: "⚡ 快捷操作"
+                    font.pixelSize: 14
+                    font.bold: true
+                    renderType: Text.NativeRendering
+                    color: textDark
+                }
+            }
+
+            ButtonWithShadow {
+                x: 15; y: 30
+                width: 210; height: 50
+                normalColor: orangeBtn
+                hoverColor: orangeBtnHover
+                text: "📋 左侧文本提取"
+                isLeftAlign: true
+                onClicked: console.log("提取生词:", textArea.text)
+            }
+
+            Text {
+                x: 15; y: 90
+                width: 210; height: 20
+                text: "———— 导入方式 ————"
+                color: "#a0aec0"
+                font.pixelSize: 11
+                renderType: Text.NativeRendering
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
+
+            ButtonWithShadow {
+                x: 15; y: 115
+                width: 210; height: 45
+                normalColor: greenBtn
+                hoverColor: greenBtnHover
+                text: "📁 文件导入 (PDF/DOC/TXT)"
+                isLeftAlign: true
+                onClicked: console.log("导入文件")
+            }
+
+            ButtonWithShadow {
+                x: 15; y: 170
+                width: 210; height: 45
+                normalColor: purpleBtn
+                hoverColor: purpleBtnHover
+                text: "🖼️ 图片OCR识别"
+                isLeftAlign: true
+                onClicked: console.log("OCR识别")
+            }
+
+            ButtonWithShadow {
+                x: 15; y: 225
+                width: 100; height: 35
+                normalColor: grayBtn
+                hoverColor: grayBtnHover
+                text: "🗑️ 清空"
+                isLeftAlign: false
+                textColor: textDark
+                onClicked: {
+                    textArea.clear()
+                    statusLabel.text = "✨ 文本已清空"
+                    updateStats()
+                }
+            }
+
+            ButtonWithShadow {
+                x: 125; y: 225
+                width: 100; height: 35
+                normalColor: grayBtn
+                hoverColor: grayBtnHover
+                text: "📋 复制"
+                isLeftAlign: false
+                textColor: textDark
+                onClicked: {
+                    textArea.selectAll()
+                    textArea.copy()
+                    statusLabel.text = "✅ 已复制到剪贴板"
+                }
+            }
+        }
+
+        // ========== 底部栏 ==========
+        Rectangle {
+            id: bottomBar
+            x: 0; y: 420
+            width: 850; height: 130
+            color: whiteBg
+            border { color: borderColor; width: 1 }
+
+            ButtonWithShadow {
+                x: 20; y: 20
+                width: 100; height: 40
+                normalColor: blueStart
+                hoverColor: "#3182ce"
+                text: "❓ 帮助"
+                isLeftAlign: false
+                radius: 20
+                onClicked: console.log("帮助")
+            }
+
+            ButtonWithShadow {
+                x: 130; y: 20
+                width: 100; height: 40
+                normalColor: blueEnd
+                hoverColor: "#5a67d8"
+                text: "ℹ️ 关于"
+                isLeftAlign: false
+                radius: 20
+                onClicked: console.log("关于")
+            }
+
+            Rectangle {
+                x: 20; y: 70
+                width: 810; height: 1
+                color: "#e2e8f0"
+            }
+
+            Text {
+                id: statusLabel
+                x: 20; y: 80
+                width: 300; height: 30
+                text: "✨ 就绪 - 可以开始提取文本"
+                color: textMuted
+                font.pixelSize: 12
+                renderType: Text.NativeRendering
+                verticalAlignment: Text.AlignVCenter
+            }
+
+            Rectangle {
+                x: 550; y: 70
+                width: 280; height: 40
+                radius: 8
+                color: "#f7fafc"
+                border.color: borderColor
+                Text {
+                    id: statsLabel
+                    anchors.centerIn: parent
+                    text: "📊 字符数: 0 | 单词数: 0 | 行数: 0"
+                    color: "#4a5568"
+                    font.pixelSize: 12
+                    font.bold: true
+                    renderType: Text.NativeRendering
+                }
+            }
+        }
+    }
+
+    // ==================== 通用按钮组件 ====================
+    component ButtonWithShadow : Item {
+        id: buttonRoot
+
+        property color normalColor: "gray"
+        property color hoverColor: "darkgray"
+        property alias text: btnText.text
+        property bool isLeftAlign: true
+        property color textColor: "white"
+        property int radius: 8
+
+        signal clicked()
+
+        Rectangle {
+            id: shadow
+            anchors.fill: parent
+            anchors.margins: -3
+            radius: buttonRoot.radius + 3
+            color: "#000000"
+            opacity: 0
+            Behavior on opacity {
+                NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+            }
+        }
+
+        Rectangle {
+            id: buttonRect
+            anchors.fill: parent
+            radius: buttonRoot.radius
+            color: buttonRoot.hovered ? buttonRoot.hoverColor : buttonRoot.normalColor
+            Behavior on color {
+                ColorAnimation { duration: 180; easing.type: Easing.OutCubic }
+            }
+
+            transform: Translate {
+                id: btnTranslate
+                Behavior on y {
+                    NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                }
+            }
+
+            Text {
+                id: btnText
+                anchors {
+                    verticalCenter: parent.verticalCenter
+                    left: isLeftAlign ? parent.left : undefined
+                    horizontalCenter: isLeftAlign ? undefined : parent.horizontalCenter
+                    leftMargin: isLeftAlign ? 20 : 0
+                }
+                color: textColor
+                font.pixelSize: 13
+                font.bold: true
+                renderType: Text.NativeRendering
+            }
+        }
+
+        property bool hovered: false
+
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onEntered: {
+                buttonRoot.hovered = true
+                btnTranslate.y = -1
+                shadow.opacity = 0.06
+            }
+            onExited: {
+                buttonRoot.hovered = false
+                btnTranslate.y = 0
+                shadow.opacity = 0
+            }
+            onClicked: buttonRoot.clicked()
+        }
+    }
+
+    function updateStats() {
+        var text = textArea.text
+        var charCount = 0
+        for (var i = 0; i < text.length; i++) {
+            if (!/\s/.test(text[i])) charCount++
+        }
+        var words = text.trim().split(/\s+/).filter(function(w) { return w.length > 0 })
+        var wordCount = text.trim() === "" ? 0 : words.length
+        var lineCount = text.split(/\n/).length
+        if (text === "") lineCount = 0
+
+        statsLabel.text = "📊 字符数: " + charCount + " | 单词数: " + wordCount + " | 行数: " + lineCount
+    }
+
+    Component.onCompleted: updateStats()
+}
+// ============================================================
+// End of file: ui/result/ResultDisplayWidget.qml
+// ============================================================
+
