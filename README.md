@@ -64,6 +64,13 @@ Pull requests and issue reports are welcome. Please note the codebase is evolvin
 
 欢迎提交 Pull Request 和 Issue。请注意代码库正在快速演进。
 
+## 注意
+
+在build输出的文件需要再exe同目录下拷贝EUWEOCRT.exe与euwe_words.db文件,
+可通过以下网盘获取:
+通过网盘分享的文件：EUWE Project
+链接: https://pan.baidu.com/s/1fWChHgathmukzoJXph3oqA 提取码: 7891
+
 ---
 
 📌 *详细文档请等待首个稳定版本发布。*
