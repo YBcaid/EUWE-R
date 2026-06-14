@@ -1,14 +1,15 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import App.Models 1.0
 
 Rectangle {
     id: root
     color: "transparent"
 
-    property ListModel unknownModel
-    property ListModel newWordModel
-    property ListModel knownWordModel
+    property var unknownModel: WordManager.unknownModel
+    property var newWordModel: WordManager.newModel
+    property var knownWordModel: WordManager.knownModel
 
     property var unknownSelected: []
     property var newWordSelected: []
@@ -20,7 +21,8 @@ Rectangle {
         unknownListComp.clearSelection()
         newWordListComp.clearSelection()
         knownWordListComp.clearSelection()
-        activeList = ""; activeSelected = []
+        activeList = ""
+        activeSelected = []
     }
 
     function clearOtherList(listName) {
@@ -52,7 +54,7 @@ Rectangle {
         spacing: 16
 
         Text {
-            text: "📊 单词识别结果"
+            text: "单词识别结果"
             font.pixelSize: 18
             font.bold: true
             color: Theme.textDark
@@ -71,27 +73,20 @@ Rectangle {
                 MouseArea { id: handleMouse; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.SplitHCursor }
             }
 
-            // 未识别 → 使用 SelectableWordList
+            // 未识别
             Rectangle {
                 SplitView.preferredWidth: 140; SplitView.minimumWidth: 100
                 border.color: Qt.rgba(Theme.borderInner.r, Theme.borderInner.g, Theme.borderInner.b, 0.5)
                 border.width: 1; radius: 14; color: Theme.surface
                 Rectangle { anchors.fill: parent; radius: 14; color: Theme.dark ? "transparent" : Qt.rgba(1,1,1,0.4) }
-
                 SelectableWordList {
                     id: unknownListComp
-                    anchors.fill: parent
-                    anchors.margins: 12
-                    title: "未识别"
-                    iconColor: colorToHex(Theme.btnDangerText)
-                    iconSvg: svgUnknown
-                    wordModel: unknownModel
-                    activeListType: "unknown"
-                    showTranslation: false
-                    showPhonetic: false
-
-                    onSelectionChanged: function(indices) {
-                        unknownSelected = indices.slice()
+                    anchors.fill: parent; anchors.margins: 12
+                    title: "未识别"; iconColor: colorToHex(Theme.btnDangerText); iconSvg: svgUnknown
+                    wordModel: unknownModel; activeListType: "unknown"
+                    showTranslation: false; showPhonetic: false
+                    selection.onSelectedChanged: {
+                        unknownSelected = selection.selected.slice()
                         root.activeList = "unknown"
                         root.activeSelected = unknownSelected
                     }
@@ -99,7 +94,7 @@ Rectangle {
                 }
             }
 
-            // 生词列表
+            // 生词
             Rectangle {
                 SplitView.preferredWidth: 400; SplitView.minimumWidth: 250
                 border.color: Qt.rgba(Theme.borderInner.r, Theme.borderInner.g, Theme.borderInner.b, 0.5)
@@ -108,14 +103,11 @@ Rectangle {
                 SelectableWordList {
                     id: newWordListComp
                     anchors.fill: parent; anchors.margins: 12
-                    title: "生词（已获取释义）"
-                    iconColor: Theme.accent
-                    iconSvg: svgNewWord
-                    wordModel: newWordModel
-                    activeListType: "newWord"
+                    title: "生词（已获取释义）"; iconColor: Theme.accent; iconSvg: svgNewWord
+                    wordModel: newWordModel; activeListType: "newWord"
                     showTranslation: true; showPhonetic: true
-                    onSelectionChanged: function(indices) {
-                        newWordSelected = indices.slice()
+                    selection.onSelectedChanged: {
+                        newWordSelected = selection.selected.slice()
                         root.activeList = "newWord"
                         root.activeSelected = newWordSelected
                     }
@@ -123,7 +115,7 @@ Rectangle {
                 }
             }
 
-            // 熟词列表
+            // 熟词
             Rectangle {
                 SplitView.preferredWidth: 140; SplitView.minimumWidth: 100
                 border.color: Qt.rgba(Theme.borderInner.r, Theme.borderInner.g, Theme.borderInner.b, 0.5)
@@ -132,14 +124,11 @@ Rectangle {
                 SelectableWordList {
                     id: knownWordListComp
                     anchors.fill: parent; anchors.margins: 12
-                    title: "熟词"
-                    iconColor: "#28a745"
-                    iconSvg: svgKnown
-                    wordModel: knownWordModel
-                    activeListType: "knownWord"
+                    title: "熟词"; iconColor: "#28a745"; iconSvg: svgKnown
+                    wordModel: knownWordModel; activeListType: "knownWord"
                     showTranslation: false; showPhonetic: false
-                    onSelectionChanged: function(indices) {
-                        knownWordSelected = indices.slice()
+                    selection.onSelectedChanged: {
+                        knownWordSelected = selection.selected.slice()
                         root.activeList = "knownWord"
                         root.activeSelected = knownWordSelected
                     }
@@ -148,7 +137,7 @@ Rectangle {
             }
         }
 
-        // 底部按钮栏
+        // 底部按钮栏（保持不变）
         RowLayout {
             Layout.fillWidth: true; spacing: 12
             Item {
@@ -183,14 +172,30 @@ Rectangle {
                     onClicked: {
                         if (activeList === "newWord" && newWordSelected.length > 0) {
                             var indices = newWordSelected.slice().sort((a,b) => b - a)
+                            var addedCount = 0
+                            var duplicateWords = []
                             for (var i = 0; i < indices.length; i++) {
                                 var idx = indices[i]
                                 var item = newWordModel.get(idx)
-                                knownWordModel.append({ word: item.word, translation: item.translation, phonetic: item.phonetic })
+                                var exists = false
+                                for (var k = 0; k < knownWordModel.count; k++) {
+                                    if (knownWordModel.get(k).word === item.word) {
+                                        exists = true
+                                        break
+                                    }
+                                }
+                                if (!exists) {
+                                    knownWordModel.append({ word: item.word, translation: item.translation, phonetic: item.phonetic })
+                                    addedCount++
+                                } else {
+                                    duplicateWords.push(item.word)
+                                }
                                 newWordModel.remove(idx)
                             }
                             clearAllSelections()
-                            if (root.mainWindow) root.mainWindow.statusTextValue = `✅ 已录入 ${indices.length} 个单词到熟词库`
+                            var msg = "✅ 已录入 " + addedCount + " 个单词到熟词库"
+                            if (duplicateWords.length > 0) msg += "，其中 " + duplicateWords.length + " 个已存在（已跳过）"
+                            if (root.mainWindow) root.mainWindow.statusTextValue = msg
                         } else if (activeList === "knownWord" && knownWordSelected.length > 0) {
                             var indices = knownWordSelected.slice().sort((a,b) => b - a)
                             for (var j = 0; j < indices.length; j++) {
@@ -200,7 +205,7 @@ Rectangle {
                                 knownWordModel.remove(idx)
                             }
                             clearAllSelections()
-                            if (root.mainWindow) root.mainWindow.statusTextValue = `↩️ 已移出 ${indices.length} 个单词到生词`
+                            if (root.mainWindow) root.mainWindow.statusTextValue = "↩️ 已移出 " + indices.length + " 个单词到生词"
                         }
                     }
                 }
@@ -218,7 +223,7 @@ Rectangle {
         }
     }
 
-    // 导出菜单（未改动）
+    // 导出菜单（保持不变）
     Popup {
         id: exportPopup; padding: 0; closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape; focus: true
         property bool isUpward: false
@@ -251,7 +256,11 @@ Rectangle {
                         Rectangle { anchors.bottom: parent.bottom; width: parent.width-24; height: 1
                             color: Theme.dark ? Qt.lighter(Theme.borderInner, 1.3) : Theme.borderInner; visible: index !== 2; anchors.horizontalCenter: parent.horizontalCenter }
                         MouseArea { id: hoverArea; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                            onClicked: { console.log(modelData.text); exportPopup.close() } }
+                            onClicked: {
+                                console.log(modelData.text)
+                                exportPopup.close()
+                            }
+                        }
                     }
                 }
             }

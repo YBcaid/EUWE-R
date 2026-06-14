@@ -5,11 +5,11 @@
 #include <QQuickStyle>
 #include "Logger.h"
 #include "main/MainController.h"
+#include "models/wordmanager.h"
+#include "models/wordfilterproxymodel.h"
+#include "models/SelectionModel.h"          // ✅ 新增
 #include <QQmlContext>
 
-/**
- * @brief 初始化多分类日志系统，为每个日志分类创建独立的文件输出和控制台输出。
- */
 void initAllLogging()
 {
     QString logsDir = QDir::cleanPath(QString(PROJECT_ROOT) + "/data/logs");
@@ -43,7 +43,6 @@ void initAllLogging()
 
     auto consoleTarget = QSharedPointer<ConsoleTarget>::create();
     Logger::instance().addTargetForAllCategories(consoleTarget);
-
     Logger::instance().setGlobalLevel(LogLevel::DEBUG);
     LOG_INFO_CAT(LogCategory::General) << "日志系统初始化完成，所有分类已注册";
 }
@@ -51,7 +50,6 @@ void initAllLogging()
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-
     initAllLogging();
 
     Widget widget;
@@ -66,6 +64,10 @@ int main(int argc, char *argv[])
 
     MainController controller;
     engine.rootContext()->setContextProperty("appController", &controller);
+    WordManager manager;
+    engine.rootContext()->setContextProperty("WordManager", &manager);
+    qmlRegisterType<WordFilterProxyModel>("App.Models", 1, 0, "WordFilterProxyModel");
+    qmlRegisterType<SelectionModel>("App.Models", 1, 0, "SelectionModel");   // ✅ 关键注册
 
     const QUrl url = QUrl::fromLocalFile(PROJECTROOT + "/ui/main/main.qml");
     engine.load(url);

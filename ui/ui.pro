@@ -17,13 +17,21 @@ INCLUDEPATH += ../common ../core ../modules
 
 HEADERS += \
     main/MainController.h \
+    models/SelectionModel.h \
     result/ResultDisplayWidget.h \
-    database/DatabaseManagementWindow.h
+    database/DatabaseManagementWindow.h \
+    models/WordListModel.h \
+    models/WordManager.h \
+    models/WordFilterProxyModel.h
 
 SOURCES += \
     main/MainController.cpp \
+    models/SelectionModel.cpp \
     result/ResultDisplayWidget.cpp \
-    database/DatabaseManagementWindow.cpp
+    database/DatabaseManagementWindow.cpp \
+    models/WordListModel.cpp \
+    models/WordManager.cpp \
+    models/WordFilterProxyModel.cpp
 
 RESOURCES +=
 
@@ -46,4 +54,11 @@ DISTFILES += \
     main/WordTable.qml \
     main/main.qml \
     main/qmldir \
+    main/rewrite/ColumnLayoutModel.qml \
+    main/rewrite/SelectableTable.qml \
+    main/rewrite/SelectionController.qml \
+    main/rewrite/TableHeader.qml \
+    main/rewrite/TableRow.qml \
+    main/rewrite/WordPage.qml \
+    main/rewrite/main.qml \
     result/ResultDisplayWidget.qml

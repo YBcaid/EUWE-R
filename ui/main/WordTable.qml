@@ -34,8 +34,9 @@ Rectangle {
         }
     }
 
-    // 表头
+    // 表头（保持不变）
     RowLayout {
+        id: headerRow
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
@@ -47,7 +48,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredWidth: 140
             height: parent.height
-            color: Theme.dark ? "#2A2A3E" : "#F5F0EB"   // 固定色，轻微区分表头
+            color: Theme.dark ? "#2A2A3E" : "#F5F0EB"
             Text {
                 anchors.centerIn: parent
                 text: "单词"
@@ -96,114 +97,125 @@ Rectangle {
         }
     }
 
-    ScrollView {
-        anchors.top: parent.top
+    // 数据列表（替换 ScrollView）
+    ListView {
+        id: listView
+        anchors.top: headerRow.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.topMargin: 34
+        model: displayModel
         clip: true
-        ScrollBar.vertical.policy: ScrollBar.AsNeeded
-        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        spacing: 0
 
-        ListView {
-            id: listView
-            anchors.fill: parent
-            model: displayModel
-            clip: true
-            spacing: 0
+        // 自定义垂直滚动条（关键：避开系统默认样式）
+        ScrollBar.vertical: ScrollBar {
+            id: verticalScrollBar
+            policy: ScrollBar.AsNeeded
+            width: 6
+            anchors.right: parent.right
+            anchors.rightMargin: 2
 
-            delegate: Rectangle {
-                width: listView.width
-                height: 38
-                color: {
-                    if (listView.currentIndex === index)
-                        return Theme.dark ? Qt.rgba(45,212,191,0.25) : "#E8DCCC"
-                    return (index % 2 === 0) ?
-                        (Theme.dark ? Qt.rgba(1,1,1,0.04) : Qt.rgba(0,0,0,0.02)) :
-                        "transparent"
-                }
+            contentItem: Rectangle {
+                implicitWidth: 4
+                radius: 2
+                color: Theme.dark ? Qt.rgba(1,1,1,0.25) : Qt.rgba(0,0,0,0.15)
+                opacity: (verticalScrollBar.hovered || verticalScrollBar.pressed) ? 1.0 : 0.4
+            }
+            background: null
+        }
 
-                RowLayout {
-                    anchors.fill: parent
-                    spacing: 1
+        delegate: Rectangle {
+            width: listView.width
+            height: 38
+            color: {
+                if (listView.currentIndex === index)
+                    return Theme.dark ? Qt.rgba(45,212,191,0.25) : "#E8DCCC"
+                return (index % 2 === 0) ?
+                    (Theme.dark ? Qt.rgba(1,1,1,0.04) : Qt.rgba(0,0,0,0.02)) :
+                    "transparent"
+            }
 
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 140
-                        height: parent.height
-                        color: "transparent"
-                        Text {
-                            anchors.left: parent.left
-                            anchors.leftMargin: 12
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: model.word
-                            color: Theme.textDark
-                            font.pixelSize: 13
-                            elide: Text.ElideRight
-                        }
-                    }
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 280
-                        height: parent.height
-                        color: "transparent"
-                        Text {
-                            anchors.left: parent.left
-                            anchors.leftMargin: 12
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: model.translation
-                            color: Theme.textMid
-                            font.pixelSize: 12
-                            elide: Text.ElideRight
-                        }
-                    }
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 120
-                        height: parent.height
-                        color: "transparent"
-                        Text {
-                            anchors.left: parent.left
-                            anchors.leftMargin: 12
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: model.phonetic || ""
-                            color: Theme.textLight
-                            font.pixelSize: 11
-                            elide: Text.ElideRight
-                        }
-                    }
-                }
+            RowLayout {
+                anchors.fill: parent
+                spacing: 1
 
                 Rectangle {
-                    anchors.bottom: parent.bottom
-                    width: parent.width; height: 1
-                    color: Theme.borderInner
-                    visible: index !== displayModel.count - 1
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 140
+                    height: parent.height
+                    color: "transparent"
+                    Text {
+                        anchors.left: parent.left
+                        anchors.leftMargin: 12
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: model.word
+                        color: Theme.textDark
+                        font.pixelSize: 13
+                        elide: Text.ElideRight
+                    }
                 }
-
-                MouseArea {
-                    anchors.fill: parent
-                    acceptedButtons: Qt.LeftButton
-                    onClicked: {
-                        listView.currentIndex = index
-                        selectedRow = index
-                        rowSelected(index, model)
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 280
+                    height: parent.height
+                    color: "transparent"
+                    Text {
+                        anchors.left: parent.left
+                        anchors.leftMargin: 12
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: model.translation
+                        color: Theme.textMid
+                        font.pixelSize: 12
+                        elide: Text.ElideRight
+                    }
+                }
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 120
+                    height: parent.height
+                    color: "transparent"
+                    Text {
+                        anchors.left: parent.left
+                        anchors.leftMargin: 12
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: model.phonetic || ""
+                        color: Theme.textLight
+                        font.pixelSize: 11
+                        elide: Text.ElideRight
                     }
                 }
             }
 
             Rectangle {
-                visible: displayModel.count === 0
-                anchors.centerIn: parent
-                width: parent.width; height: 50
-                color: "transparent"
-                Text {
-                    anchors.centerIn: parent
-                    text: "暂无数据"
-                    color: Theme.textLight
-                    font.pixelSize: 12
+                anchors.bottom: parent.bottom
+                width: parent.width; height: 1
+                color: Theme.borderInner
+                visible: index !== displayModel.count - 1
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.LeftButton
+                onClicked: {
+                    listView.currentIndex = index
+                    selectedRow = index
+                    rowSelected(index, model)
                 }
+            }
+        }
+
+        // 空数据提示
+        Rectangle {
+            visible: displayModel.count === 0
+            anchors.centerIn: parent
+            width: parent.width; height: 50
+            color: "transparent"
+            Text {
+                anchors.centerIn: parent
+                text: "暂无数据"
+                color: Theme.textLight
+                font.pixelSize: 12
             }
         }
     }
